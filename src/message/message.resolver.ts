@@ -51,7 +51,7 @@ export class MessageResolver {
     console.log(data);
     return data;
   }
-
+  @UseGuards(JwtAuthGuardGraphql)
   @Mutation((returns) => Message)
   async saveMessage(
     @Args('saveMessageData') saveMessageData: SaveMessageInput,
