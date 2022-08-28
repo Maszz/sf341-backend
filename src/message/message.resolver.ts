@@ -14,6 +14,8 @@ import {
 import { PubSub } from 'graphql-subscriptions';
 import { Message } from './message.model';
 import { MessageService } from './message.service';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuardGraphql } from '../auth/guard/jwt-auth-graphql.guard';
 @InputType()
 export class GetMessageInput {
   @Field((type) => Int, { nullable: true, defaultValue: 0 })
@@ -36,6 +38,7 @@ const pubSub = new PubSub();
 export class MessageResolver {
   constructor(private readonly msgSservice: MessageService) {}
 
+  @UseGuards(JwtAuthGuardGraphql)
   @Query((returns) => [Message])
   async getMessage(@Args('getMessageInput') getMessageInput: GetMessageInput) {
     const data = await this.msgSservice.Messages({
