@@ -36,6 +36,6 @@ model User {
   username  String   @unique
   name      String
   email     String   @unique
-  hashpw    String
-  hashedRt  String?
+  hashpw    String   @db.VarChar(1000)
+  hashedRt  String?  @db.VarChar(1000)
 }

@@ -10,7 +10,6 @@ services:
     volumes:
       - './.docker-compose/redis-master:/bitnami'
     networks:
-      - app-net
       - redis-net
     deploy:
       replicas: 1
@@ -82,12 +81,6 @@ services:
       replicas: 2
 
 networks:
-  app-net:
-    driver: bridge
-
-  mongodb-net:
-    driver: bridge
-
   redis-net:
     driver: bridge
   mysql-net:

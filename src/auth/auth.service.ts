@@ -152,7 +152,7 @@ export class AuthService {
     if (!user || !user.hashedRt) throw new ForbiddenException('Access Denied');
 
     const rtMatches = await argon.verify(user.hashedRt, rt, {
-      hashLength: 512,
+      hashLength: 256,
     });
     if (!rtMatches) throw new ForbiddenException('Access Denied');
 
@@ -174,7 +174,9 @@ export class AuthService {
   }
 
   async hashData(data: string): Promise<string> {
-    const hashed = await argon.hash(data, { hashLength: 512 });
+    const hashed = await argon.hash(data, {
+      hashLength: 256,
+    });
 
     return hashed;
   }
