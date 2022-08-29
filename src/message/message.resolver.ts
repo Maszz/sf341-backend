@@ -38,7 +38,7 @@ const pubSub = new PubSub();
 export class MessageResolver {
   constructor(private readonly msgSservice: MessageService) {}
 
-  @UseGuards(JwtAuthGuardGraphql)
+  // @UseGuards(JwtAuthGuardGraphql)
   @Query((returns) => [Message])
   async getMessage(@Args('getMessageInput') getMessageInput: GetMessageInput) {
     const data = await this.msgSservice.Messages({
@@ -51,7 +51,7 @@ export class MessageResolver {
     console.log(data);
     return data;
   }
-  @UseGuards(JwtAuthGuardGraphql)
+  // @UseGuards(JwtAuthGuardGraphql)
   @Mutation((returns) => Message)
   async saveMessage(
     @Args('saveMessageData') saveMessageData: SaveMessageInput,

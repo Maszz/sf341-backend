@@ -6,19 +6,19 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+  provider = "mysql"
+  url      = "mysql://root:my_root_password@127.0.0.1:5665/sf341"
 }
 
 model Message {
-  sender_id  String   @id @default(auto()) @map("_id") @db.ObjectId
+  sender_id  Int      @id @default(autoincrement()) @db.UnsignedInt
   senderName String
   message    String
   date       DateTime @default(now())
 }
 
 model Log {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
   level     String
   message   String
   context   String
@@ -29,8 +29,8 @@ model Log {
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now()) @db.Date
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   // id        Int      @id @default(autoincrement())
   username  String   @unique

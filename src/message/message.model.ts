@@ -6,7 +6,7 @@ export class Message {
   _id: string;
 
   @Field((type) => String, { nullable: true })
-  sender_id?: string;
+  sender_id?: number;
 
   @Field((type) => String, { nullable: true })
   senderName?: string;
