@@ -8,7 +8,7 @@ services:
       - REDIS_REPLICATION_MODE=master
       - REDIS_PASSWORD=my_master_password
     volumes:
-      - './docker-compose/redis-master:/bitnami'
+      - './.docker-compose/redis-master:/bitnami'
     networks:
       - app-net
       - redis-net
@@ -18,7 +18,7 @@ services:
   redis-slave:
     image: 'bitnami/redis:latest'
     volumes:
-      - ./docker-compose/redis-slave:/bitnami/redis/data
+      - ./.docker-compose/redis-slave:/bitnami/redis/data
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
@@ -54,7 +54,7 @@ services:
     volumes:
       # - './init.sql:/data/application/init.sql'
       # - './init.sql:/docker-entrypoint-startdb.d/init.sql'
-      - './docker-compose/mysql:/bitnami/mysql/data'
+      - './.docker-compose/mysql:/bitnami/mysql/data'
 
     networks:
       - mysql-net
