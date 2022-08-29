@@ -14,6 +14,7 @@ Finally run dev compose to expose database and cache server to localhost
 $ docker compose -f dev-compose.yml up
 # compose down for stop server
 $ docker compose -f dev-compose.yml down
+# docker compose up command use -d at the end for run it on background.
 ```
 ## Components in compose
 - Redis master 1 instance -> expose port 5665 to localhost
