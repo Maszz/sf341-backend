@@ -60,6 +60,7 @@ const configOptionForRoot = {
       debug: true,
       playground: true,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      cors: false,
     }),
 
     LoggerModule,
