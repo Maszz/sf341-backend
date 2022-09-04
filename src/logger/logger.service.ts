@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Log, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { Request, Response } from 'Express';
+import { Request } from 'Express';
 /**
  * Logger Service Wrapped from nestJS logger.
  * @method `log`
