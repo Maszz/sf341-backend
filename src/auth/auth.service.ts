@@ -108,7 +108,7 @@ export class AuthService {
   }
 
   async getTokens(payload: {
-    sub: number;
+    sub: string;
     username: string;
   }): Promise<TokenDto> {
     const encryptedAt = TripleDES.encrypt(

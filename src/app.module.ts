@@ -50,7 +50,6 @@ const configOptionForRoot = {
       }),
       inject: [ConfigService],
     }),
-
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       installSubscriptionHandlers: true,
