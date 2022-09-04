@@ -4,12 +4,6 @@ import { ForbiddenException } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  await app.listen(process.env.PORT || 8080);
-  console.log(`Application is running on: ${await app.getUrl()}`);
-  console.log(
-    `Application is listening on: ${await app.getHttpServer().address().port}`,
-  );
   const whitelist = ['http://localhost:3000'];
 
   app.enableCors({
@@ -24,5 +18,10 @@ async function bootstrap() {
     },
     credentials: true,
   });
+  await app.listen(process.env.PORT || 8080);
+  console.log(`Application is running on: ${await app.getUrl()}`);
+  console.log(
+    `Application is listening on: ${await app.getHttpServer().address().port}`,
+  );
 }
 bootstrap();
