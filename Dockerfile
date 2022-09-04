@@ -5,8 +5,9 @@
 FROM node:lts-alpine 
 
 WORKDIR /usr/src/app
-COPY ./dist/apps/backend .
-COPY ./apps/backend/src/schema.prisma ./prisma/ 
+COPY ./dist .
+COPY ./prisma/schema.prisma ./prisma/ 
+COPY package.json package-lock.json ./
 # COPY --chown=node:node package.json package-lock.json ./
 ENV PORT=3333
 
