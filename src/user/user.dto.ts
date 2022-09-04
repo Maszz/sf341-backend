@@ -1,5 +1,5 @@
 export class UserRespondDto {
-  id: number;
+  id: string;
   createdAt: Date;
   updatedAt: Date;
   username: string;
