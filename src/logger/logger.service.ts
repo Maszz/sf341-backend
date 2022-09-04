@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Log, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { Request } from 'Express';
 /**
  * Logger Service Wrapped from nestJS logger.
  * @method `log`
@@ -82,7 +83,7 @@ export class LoggerService {
       timestamp: new Date(),
     });
   }
-  http(request: any): void {
+  http(request: Request): void {
     this.log(
       `${request.method} ${request.url} - {${request.headers['user-agent']}} - ${request.ip} ${request.protocol}/${request.httpVersion}`,
       'HttpRequest',
