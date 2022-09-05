@@ -30,8 +30,8 @@ model User {
   email          String          @unique
   userHashedData UserHashedData?
   profile        Profile?
-  eventsId       String[]        @db.ObjectId
-  events         Event[]         @relation("participants", fields: [eventsId], references: [id])
+  eventsJoined   String[]        @db.ObjectId
+  events         Event[]         @relation("participants", fields: [eventsJoined], references: [id])
   createdEvents  Event[]         @relation("creator")
 }
 
@@ -47,11 +47,10 @@ model Profile {
 model UserHashedData {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   updatedAt DateTime @updatedAt
-
-  hashpw   String
-  hashedRt String?
-  user     User?   @relation(fields: [userId], references: [username])
-  userId   String? @unique
+  hashpw    String
+  hashedRt  String?
+  user      User?    @relation(fields: [userId], references: [username])
+  userId    String?  @unique
 }
 
 model Event {
@@ -78,7 +77,7 @@ model EventChat {
 }
 
 model Message {
-  sender_id   String     @id @default(auto()) @map("_id") @db.ObjectId
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
   senderName  String
   message     String
   date        DateTime   @default(now())
