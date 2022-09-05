@@ -11,13 +11,6 @@ datasource db {
   url      = "mongodb://192.168.1.183:49155/sf341?readPreference=primary&directConnection=true&ssl=false"
 }
 
-model Message {
-  sender_id  String   @id @default(auto()) @map("_id") @db.ObjectId
-  senderName String
-  message    String
-  date       DateTime @default(now())
-}
-
 model Log {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   level     String
@@ -30,21 +23,70 @@ model Log {
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  // id        Int      @id @default(autoincrement())
-  username  String   @unique
-  name      String
-  email     String   @unique
-
-  Hashed Hashed?
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  username       String          @unique
+  email          String          @unique
+  userHashedData UserHashedData?
+  profile        Profile?
+  eventsId       String[]        @db.ObjectId
+  events         Event[]         @relation("participants", fields: [eventsId], references: [id])
+  createdEvents  Event[]         @relation("creator")
 }
 
-model Hashed {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+model Profile {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  name    String?
+  surname String?
+  bio     String?
+  user    User?   @relation(fields: [userId], references: [username])
+  userId  String? @unique
+}
+
+model UserHashedData {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  updatedAt DateTime @updatedAt
+
   hashpw   String
   hashedRt String?
   user     User?   @relation(fields: [userId], references: [username])
   userId   String? @unique
 }
+
+model Event {
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  name           String
+  date           DateTime
+  location       String
+  description    String
+  creatorId      String
+  creator        User?      @relation("creator", fields: [creatorId], references: [username])
+  participantsId String[]   @db.ObjectId
+  participants   User[]     @relation("participants", fields: [participantsId], references: [id])
+  eventChat      EventChat?
+}
+
+model EventChat {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  updatedAt DateTime  @updatedAt
+  eventId   String    @unique @db.ObjectId
+  event     Event?    @relation(fields: [eventId], references: [id])
+  messages  Message[]
+}
+
+model Message {
+  sender_id   String     @id @default(auto()) @map("_id") @db.ObjectId
+  senderName  String
+  message     String
+  date        DateTime   @default(now())
+  EventChat   EventChat? @relation(fields: [eventChatId], references: [id])
+  eventChatId String?    @db.ObjectId
+}
+
+// enum Role {
+//   USER
+//   ADMIN
+// }

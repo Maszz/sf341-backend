@@ -8,14 +8,13 @@ import { JwtPayloadForSign } from '../types';
 import { Request } from 'express';
 import { TripleDES, enc } from 'crypto-js';
 import { PrismaService } from '../prisma/prisma.service';
-import { User, Hashed } from 'prisma/prisma-client';
+import { User, UserHashedData } from 'prisma/prisma-client';
 
 import {
   tokenType,
   ArgonHashPayload,
   TripleDesDecryptPayload,
 } from './auth.processor.types';
-type UserWithTokens = User & { Hashed: Hashed };
 
 @Injectable()
 export class AuthService {
@@ -32,14 +31,17 @@ export class AuthService {
   }
 
   async signUpLocal(authDto: SignUpDto): Promise<TokenDto> {
-    console.log(authDto);
     const hash = await this.hashData(authDto.password);
     const newUser = await this.userService.createUser({
       username: authDto.username,
-      name: authDto.name,
       email: authDto.email,
       // hashpw: hash,
-      Hashed: {
+      profile: {
+        create: {
+          name: authDto.name,
+        },
+      },
+      userHashedData: {
         create: {
           hashpw: hash,
         },
@@ -59,7 +61,7 @@ export class AuthService {
     //   { username: dto.username },
     //   { Hashed: true },
     // )) as UserWithTokens;
-    const user = await this.prisma.hashed.findUnique({
+    const user = await this.prisma.userHashedData.findUnique({
       where: {
         userId: dto.username,
       },
@@ -110,7 +112,7 @@ export class AuthService {
     //   sub: sub,
     //   type: tokenType.accessToken,
     // });
-    await this.prisma.hashed.updateMany({
+    await this.prisma.userHashedData.updateMany({
       where: {
         hashedRt: {
           not: null,
@@ -168,7 +170,7 @@ export class AuthService {
     //   { username: decodedSub },
     //   { Hashed: true },
     // )) as UserWithTokens;
-    const user = await this.prisma.hashed.findUnique({
+    const user = await this.prisma.userHashedData.findUnique({
       where: {
         userId: decodedSub,
       },
@@ -189,7 +191,7 @@ export class AuthService {
 
   async updateRefreshTokenHash(username: string, rt: string): Promise<void> {
     const hash = await this.hashData(rt);
-    await this.prisma.hashed.updateMany({
+    await this.prisma.userHashedData.updateMany({
       where: { userId: username },
       data: { hashedRt: hash },
     });

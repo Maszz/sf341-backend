@@ -56,7 +56,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     //   { username: username },
     //   { Hashed: true },
     // )) as any;
-    const user = await this.prisma.hashed.findUnique({
+    const user = await this.prisma.userHashedData.findUnique({
       where: {
         userId: username,
       },
