@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = "mongodb+srv://masz:WZc4avGZliYuudf6@cluster0.bf5so.mongodb.net/sf341Project?retryWrites=true&w=majority"
+  url      = "mongodb+srv://user:cyCrKA5yF5O0fchi@cluster0.ubk8hwf.mongodb.net/sf341?retryWrites=true&w=majority"
 }
 
 model Message {
