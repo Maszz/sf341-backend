@@ -5,6 +5,6 @@ export class UserRespondDto {
   username: string;
   name: string;
   email: string;
-  hashpw: string;
-  hashedRt: string | null;
+  // hashpw: string;
+  // hashedRt: string | null;
 }

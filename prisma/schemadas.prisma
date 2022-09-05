@@ -37,14 +37,6 @@ model User {
   username  String   @unique
   name      String
   email     String   @unique
-
-  Hashed Hashed?
-}
-
-model Hashed {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  hashpw   String
-  hashedRt String?
-  user     User?   @relation(fields: [userId], references: [username])
-  userId   String? @unique
+  hashpw    String
+  hashedRt  String?
 }
