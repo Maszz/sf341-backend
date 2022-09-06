@@ -155,7 +155,6 @@ export class AuthService {
         privateKey: this.rtPrivateKey,
       },
     );
-    console.log('Before signing finished');
 
     return {
       access_token: await at,
