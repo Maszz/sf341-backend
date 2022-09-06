@@ -5,7 +5,6 @@ import { ForbiddenException } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const whitelist = ['http://localhost:3000'];
-
   app.enableCors({
     origin: function (origin, callback) {
       if (whitelist.indexOf(origin) !== -1 || origin == undefined) {
