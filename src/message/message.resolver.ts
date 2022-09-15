@@ -16,21 +16,27 @@ import { Message } from './message.model';
 import { MessageService } from './message.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuardGraphql } from '../auth/guard/jwt-auth-graphql.guard';
+import { Prisma } from '@prisma/client';
+
 @InputType()
 export class GetMessageInput {
   @Field((type) => Int, { nullable: true, defaultValue: 0 })
   offset?: number;
   @Field((type) => Int, { nullable: true, defaultValue: 20 })
   limit?: number;
+  @Field((type) => String, { nullable: true })
+  eventChatId: string;
 }
 @InputType()
 export class SaveMessageInput {
-  @Field()
+  // @Field()
   //   sender_id: string;
   @Field()
   senderName: string;
   @Field()
   message: string;
+  @Field((type) => String, { nullable: true })
+  eventChatId: string;
 }
 const pubSub = new PubSub();
 
@@ -44,6 +50,11 @@ export class MessageResolver {
     const data = await this.msgSservice.Messages({
       skip: getMessageInput.offset,
       take: getMessageInput.limit,
+      where: {
+        EventChat: {
+          id: getMessageInput.eventChatId,
+        },
+      },
       orderBy: {
         date: 'desc',
       },
@@ -56,7 +67,17 @@ export class MessageResolver {
   async saveMessage(
     @Args('saveMessageData') saveMessageData: SaveMessageInput,
   ) {
-    const data = await this.msgSservice.createMessage(saveMessageData);
+    console.log(saveMessageData);
+    const preData: Prisma.MessageCreateInput = {
+      senderName: saveMessageData.senderName,
+      message: saveMessageData.message,
+      EventChat: {
+        connect: {
+          id: saveMessageData.eventChatId,
+        },
+      },
+    };
+    const data = await this.msgSservice.createMessage(preData);
     pubSub.publish('messageAdded', { messageAdded: data });
 
     return data;

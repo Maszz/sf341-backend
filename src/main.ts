@@ -4,7 +4,7 @@ import { ForbiddenException } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const whitelist = ['http://localhost:3000'];
+  const whitelist = ['http://localhost:3000', 'http://localhost:3333'];
   app.enableCors({
     origin: function (origin, callback) {
       if (whitelist.indexOf(origin) !== -1 || origin == undefined) {

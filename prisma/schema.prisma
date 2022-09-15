@@ -82,7 +82,7 @@ model Message {
   message     String
   date        DateTime   @default(now())
   EventChat   EventChat? @relation(fields: [eventChatId], references: [id])
-  eventChatId String?    @db.ObjectId
+  eventChatId String     @db.ObjectId
 }
 
 // enum Role {
