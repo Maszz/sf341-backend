@@ -1,7 +1,14 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
-
+interface IUpdateProfileParamsArgs {
+  updateParams: {
+    name?: string;
+    surname?: string;
+    bio?: string;
+  };
+  username: string;
+}
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
@@ -62,20 +69,17 @@ export class UserService {
     });
   }
 
-  async updateManyUser(params: {
-    where: Prisma.UserWhereInput;
-    data: Prisma.UserUpdateInput;
-  }): Promise<Prisma.BatchPayload> {
-    const { where, data } = params;
-    return this.prisma.user.updateMany({
-      where: where,
-      data: data,
-    });
-  }
-
-  async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
-    return this.prisma.user.delete({
-      where,
+  async updateProfile(args: IUpdateProfileParamsArgs) {
+    const { username, updateParams } = args;
+    return this.prisma.user.update({
+      where: {
+        username: username,
+      },
+      data: {
+        profile: {
+          update: updateParams,
+        },
+      },
     });
   }
 }

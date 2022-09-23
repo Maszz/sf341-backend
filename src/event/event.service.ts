@@ -89,4 +89,17 @@ export class EventService {
     });
     return paticipan;
   }
+
+  async getEventById(eventId: string) {
+    return await this.prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      include: {
+        creator: true,
+        participants: true,
+        eventChat: true,
+      },
+    });
+  }
 }

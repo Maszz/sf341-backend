@@ -9,6 +9,7 @@ import {
   ValidationPipe,
   Res,
   HttpCode,
+  Param,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 interface CreateEventDto {
@@ -54,5 +55,10 @@ export class EventController {
     @Body() args: AddAndRemoveParticipantDto,
   ): Promise<any> {
     return this.eventService.removePaticipantToEvent(args);
+  }
+
+  @Get('/getEvent/:eventId')
+  async getEvent(@Param('eventId') eventId: string) {
+    return this.eventService.getEventById(eventId);
   }
 }
