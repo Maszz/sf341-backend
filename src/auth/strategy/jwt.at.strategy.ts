@@ -9,6 +9,7 @@ import { LoggerService } from '../../logger/logger.service';
 // import { TripleDesDecryptPayload, tokenType } from ;
 import { tokenType, TripleDesDecryptPayload } from '../auth.processor.types';
 import { RedisService } from '@liaoliaots/nestjs-redis';
+import { PrismaService } from '../../prisma/prisma.service';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
@@ -17,6 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     private readonly authService: AuthService,
     private readonly redisService: RedisService,
     private readonly logger: LoggerService, // @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly prisma: PrismaService,
   ) {
     const extractJwtFromCookie = (req) => {
       let token = null;
@@ -47,16 +49,24 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     const username = await this.authService.decryptJwtPayload({
-      sub: payload.userId,
+      data: payload.userId,
       type: tokenType.accessToken,
     });
-    const user = await this.userService.user({ username: username });
+    // const user = (await this.userService.user(
+    //   { username: username },
+    //   { Hashed: true },
+    // )) as any;
+    const user = await this.prisma.userHashedData.findUnique({
+      where: {
+        userId: username,
+      },
+    });
     // console.log(user);
     if (!user || !user.hashedRt) {
       return false;
     }
-    await this.redis.set(payload.userId, user.username, 'EX', 3);
-    payload.userId = user.username;
+    await this.redis.set(payload.userId, user.userId, 'EX', 3);
+    payload.userId = user.userId;
     return payload;
   }
 }

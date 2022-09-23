@@ -3,8 +3,7 @@ export class UserRespondDto {
   createdAt: Date;
   updatedAt: Date;
   username: string;
-  name: string;
   email: string;
-  hashpw: string;
-  hashedRt: string | null;
+  // hashpw: string;
+  // hashedRt: string | null;
 }

@@ -75,7 +75,7 @@ export class AuthController {
   ): Promise<boolean> {
     // useClearCookie(UseCookieContext.accessToken);
     // useClearCookie(UseCookieContext.refreshToken);
-    console.log(sub);
+    // console.log(sub);
     return this.authService.logout(sub);
   }
 

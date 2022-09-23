@@ -13,6 +13,6 @@ export interface ArgonHashPayload {
 }
 
 export interface TripleDesDecryptPayload {
-  sub: string;
+  data: string;
   type: tokenType;
 }

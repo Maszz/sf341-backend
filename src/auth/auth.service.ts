@@ -7,11 +7,15 @@ import { ConfigService } from '@nestjs/config';
 import { JwtPayloadForSign } from '../types';
 import { Request } from 'express';
 import { TripleDES, enc } from 'crypto-js';
+import { PrismaService } from '../prisma/prisma.service';
+import { User, UserHashedData } from 'prisma/prisma-client';
+
 import {
   tokenType,
   ArgonHashPayload,
   TripleDesDecryptPayload,
 } from './auth.processor.types';
+
 @Injectable()
 export class AuthService {
   private atPrivateKey: string;
@@ -20,19 +24,28 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
   ) {
     this.atPrivateKey = this.configService.get<string>('jwtKey.at_privateKey');
     this.rtPrivateKey = this.configService.get<string>('jwtKey.rt_privateKey');
   }
 
   async signUpLocal(authDto: SignUpDto): Promise<TokenDto> {
-    console.log(authDto);
     const hash = await this.hashData(authDto.password);
     const newUser = await this.userService.createUser({
       username: authDto.username,
-      name: authDto.name,
       email: authDto.email,
-      hashpw: hash,
+      // hashpw: hash,
+      profile: {
+        create: {
+          name: authDto.name,
+        },
+      },
+      userHashedData: {
+        create: {
+          hashpw: hash,
+        },
+      },
     });
 
     const tokens = await this.getTokens({
@@ -43,9 +56,16 @@ export class AuthService {
 
     return tokens;
   }
-
   async signinLocal(dto: SignInRequestDto): Promise<TokenDto> {
-    const user = await this.userService.user({ username: dto.username });
+    // const user = (await this.userService.user(
+    //   { username: dto.username },
+    //   { Hashed: true },
+    // )) as UserWithTokens;
+    const user = await this.prisma.userHashedData.findUnique({
+      where: {
+        userId: dto.username,
+      },
+    });
 
     if (!user) throw new ForbiddenException('Access Denied(User)');
 
@@ -54,56 +74,54 @@ export class AuthService {
 
     const tokens = await this.getTokens({
       sub: user.id,
-      username: user.username,
+      username: user.userId,
     });
-    await this.updateRefreshTokenHash(user.username, tokens.refresh_token);
+    await this.updateRefreshTokenHash(user.userId, tokens.refresh_token);
 
     return tokens;
   }
 
-  async signInOAuth(userOauth): Promise<any> {
-    const payload = { username: userOauth.username, sub: userOauth.id };
-    const user = await this.userService.user({ email: payload.username });
-    if (!user) {
-      const newUser = await this.userService.createUser({
-        username: payload.username,
-        name: userOauth.name,
-        email: payload.username,
-        hashpw: null,
-      });
-      const tokens = await this.getTokens({
-        sub: user.id,
-        username: newUser.username,
-      });
-      await this.updateRefreshTokenHash(newUser.username, tokens.refresh_token);
-      return tokens;
-    }
-    const tokens = await this.getTokens({
-      sub: user.id,
-      username: user.username,
-    });
-    await this.updateRefreshTokenHash(user.username, tokens.refresh_token);
+  // async signInOAuth(userOauth): Promise<any> {
+  //   const payload = { username: userOauth.username, sub: userOauth.id };
+  //   const user = await this.userService.user({ email: payload.username });
+  //   if (!user) {
+  //     const newUser = await this.userService.createUser({
+  //       username: payload.username,
+  //       name: userOauth.name,
+  //       email: payload.username,
+  //       hashpw: null,
+  //     });
+  //     const tokens = await this.getTokens({
+  //       sub: user.id,
+  //       username: newUser.username,
+  //     });
+  //     await this.updateRefreshTokenHash(newUser.username, tokens.refresh_token);
+  //     return tokens;
+  //   }
+  //   const tokens = await this.getTokens({
+  //     sub: user.id,
+  //     username: user.username,
+  //   });
+  //   await this.updateRefreshTokenHash(user.username, tokens.refresh_token);
 
-    return tokens;
-  }
+  //   return tokens;
+  // }
 
   async logout(sub: string): Promise<boolean> {
     // const decodedSub = await this.decryptJwtPayload({
     //   sub: sub,
     //   type: tokenType.accessToken,
     // });
-
-    await this.userService.updateManyUser({
+    await this.prisma.userHashedData.updateMany({
       where: {
-        username: sub,
         hashedRt: {
           not: null,
         },
+        userId: sub,
       },
-      data: {
-        hashedRt: null,
-      },
+      data: { hashedRt: null },
     });
+
     return true;
   }
 
@@ -124,6 +142,7 @@ export class AuthService {
         privateKey: this.atPrivateKey,
       },
     );
+
     const encryptedRt = TripleDES.encrypt(
       `${payload.username}`,
       this.rtPrivateKey,
@@ -142,41 +161,45 @@ export class AuthService {
       refresh_token: await rt,
     };
   }
-  async refreshTokens(sub: string, rt: string): Promise<TokenDto> {
+  async refreshTokens(userId: string, rt: string): Promise<TokenDto> {
     const decodedSub = await this.decryptJwtPayload({
-      sub: sub,
+      data: userId,
       type: tokenType.refreshToken,
     });
 
-    const user = await this.userService.user({ username: decodedSub });
+    // const user = (await this.userService.user(
+    //   { username: decodedSub },
+    //   { Hashed: true },
+    // )) as UserWithTokens;
+    const user = await this.prisma.userHashedData.findUnique({
+      where: {
+        userId: decodedSub,
+      },
+    });
     if (!user || !user.hashedRt) throw new ForbiddenException('Access Denied');
 
-    const rtMatches = await argon.verify(user.hashedRt, rt, {
-      hashLength: 256,
-    });
+    const rtMatches = await argon.verify(user.hashedRt, rt);
     if (!rtMatches) throw new ForbiddenException('Access Denied');
 
     const tokens = await this.getTokens({
       sub: user.id,
-      username: user.username,
+      username: user.userId,
     });
-    await this.updateRefreshTokenHash(user.username, tokens.refresh_token);
+    await this.updateRefreshTokenHash(user.userId, tokens.refresh_token);
 
     return tokens;
   }
 
   async updateRefreshTokenHash(username: string, rt: string): Promise<void> {
     const hash = await this.hashData(rt);
-    await this.userService.updateUser({
-      where: { username: username },
+    await this.prisma.userHashedData.updateMany({
+      where: { userId: username },
       data: { hashedRt: hash },
     });
   }
 
   async hashData(data: string): Promise<string> {
-    const hashed = await argon.hash(data, {
-      hashLength: 256,
-    });
+    const hashed = await argon.hash(data);
 
     return hashed;
   }
@@ -187,7 +210,7 @@ export class AuthService {
         ? this.atPrivateKey
         : this.rtPrivateKey;
 
-    const decrypted = TripleDES.decrypt(payload.sub, secret);
+    const decrypted = TripleDES.decrypt(payload.data, secret);
     // console.log('IN process;', decrypted.toString());
     // console.log('IN process;', decrypted.toString(enc.Utf8));
 

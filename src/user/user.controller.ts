@@ -1,10 +1,15 @@
-import { Controller, Get, Req, Res, Param } from '@nestjs/common';
+import { Controller, Get, Req, Res, Param, Post, Body } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserRespondDto } from './user.dto';
 
 import { LoggerService } from '../logger/logger.service';
 import { User, Prisma } from '@prisma/client';
-
+interface UserUpdateProfileDto {
+  username: string;
+  name?: string;
+  surname?: string;
+  bio?: string;
+}
 @Controller('user')
 export class UserController {
   constructor(
@@ -27,5 +32,15 @@ export class UserController {
         username: username,
       })) || 'User not found';
     return user;
+  }
+
+  @Post('update/profile')
+  async updateUserProfile(@Body() args: UserUpdateProfileDto) {
+    // TODO
+    const { username, ...params } = args;
+    const user = await this.userService.updateProfile({
+      username: username,
+      updateParams: params,
+    });
   }
 }

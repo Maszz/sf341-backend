@@ -24,6 +24,7 @@ import { JwtKeyConfigObject } from './config/key.config';
 import { LoggerMiddleware } from './logger/logger.middleware';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { ConfigService } from '@nestjs/config';
+import { EventModule } from './event/event.module';
 const configOptionForRoot = {
   load: [
     envConfigObject,
@@ -58,7 +59,7 @@ const configOptionForRoot = {
         'subscriptions-transport-ws': true,
       },
       debug: process.env.NODE_ENV === 'development',
-      playground: process.env.NODE_ENV === 'development',
+      playground: true,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       cors: true,
       persistedQueries: false,
@@ -70,6 +71,7 @@ const configOptionForRoot = {
     MessageModule,
     AuthModule,
     UserModule,
+    EventModule,
   ],
   controllers: [AppController],
   providers: [AppService],
