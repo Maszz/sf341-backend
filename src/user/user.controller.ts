@@ -1,15 +1,21 @@
-import { Controller, Get, Req, Res, Param, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Req,
+  Res,
+  Param,
+  Post,
+  Body,
+  HttpCode,
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserRespondDto } from './user.dto';
+import { UserDto, UserRespondDto } from './dto/user.dto';
 
 import { LoggerService } from '../logger/logger.service';
 import { User, Prisma } from '@prisma/client';
-interface UserUpdateProfileDto {
-  username: string;
-  name?: string;
-  surname?: string;
-  bio?: string;
-}
+import { UserUpdateProfileDto } from './dto/user-update-profile.dto';
+import { ApiProperty, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+@ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(
@@ -18,15 +24,23 @@ export class UserController {
   ) {}
 
   @Get()
+  @ApiOkResponse({
+    description: 'User response',
+    type: [UserRespondDto],
+  })
   async getAllUsers(): Promise<UserRespondDto[]> {
     const data = this.userService.users({});
     return data;
   }
 
   @Get(':username')
+  @ApiOkResponse({
+    description: 'User response',
+    type: UserRespondDto || 'User not found',
+  })
   async getUser(
     @Param('username') username: string,
-  ): Promise<UserRespondDto | string> {
+  ): Promise<UserRespondDto | 'User not found'> {
     const user =
       (await this.userService.user({
         username: username,
@@ -35,12 +49,20 @@ export class UserController {
   }
 
   @Post('update/profile')
-  async updateUserProfile(@Body() args: UserUpdateProfileDto) {
+  @ApiOkResponse({
+    description: 'User response',
+    type: UserDto,
+  })
+  @HttpCode(200)
+  async updateUserProfile(
+    @Body() args: UserUpdateProfileDto,
+  ): Promise<UserDto> {
     // TODO
     const { username, ...params } = args;
     const user = await this.userService.updateProfile({
       username: username,
       updateParams: params,
     });
+    return user;
   }
 }

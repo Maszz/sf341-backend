@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Log, Prisma } from '@prisma/client';
+import { Log, Prisma, Event, EventChat } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 interface ICreateEventArgs {
   name: string;
@@ -19,7 +19,9 @@ export class EventService {
     private readonly prisma: PrismaService, // initialize prisma instance:
   ) {}
 
-  async createEvent(data: ICreateEventArgs): Promise<any> {
+  async createEvent(
+    data: ICreateEventArgs,
+  ): Promise<{ event: Event; eventChat: EventChat }> {
     this.logger.log('createEvent()');
     const event = await this.prisma.event.create({
       data: {
