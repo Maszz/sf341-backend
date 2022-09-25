@@ -18,6 +18,7 @@ import {
   SignInRequestDto,
   TokenDto,
   TokenDtoWithUserId,
+  UserFromJwtDto,
 } from './auth.dto';
 import { GetCurrentUser } from './decorators/getCurrentUser.decorator';
 import { Request, Response } from 'express';
@@ -29,8 +30,25 @@ import {
   ApiCreatedResponse,
   ApiTags,
   ApiBearerAuth,
+  ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
 } from '@nestjs/swagger';
 
+export class AcessDeniedResponse {
+  @ApiProperty()
+  message: string;
+  @ApiProperty()
+  statusCode: number;
+  @ApiProperty()
+  error: string;
+}
+
+export class UnAuthorizedResponse {
+  @ApiProperty()
+  message: string;
+  @ApiProperty()
+  statusCode: number;
+}
 /**
  *  All use set cookies header when login from non browser fetch system should use storage to store accses token
  * then passing it via authorization header
@@ -80,14 +98,25 @@ export class AuthController {
     description: 'Return Token',
     type: Boolean,
   })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
   @HttpCode(200)
-  async logout(@GetCurrentUser('userId') sub: string): Promise<boolean> {
-    return this.authService.logout(sub);
+  async logout(@GetCurrentUser('userId') userId: string): Promise<boolean> {
+    return this.authService.logout(userId);
   }
 
   @UseGuards(RtGuard)
   @ApiBearerAuth()
   @Post('/refresh')
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: UnAuthorizedResponse,
+  })
+  @ApiForbiddenResponse({
+    description: 'Access denied',
+    type: AcessDeniedResponse,
+  })
   @ApiOkResponse({
     description: 'Return Token',
     type: TokenDto,
@@ -104,6 +133,13 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'Return User',
+    type: UserFromJwtDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
   @Get('/me')
   getProfile(@Req() req: Request) {
     return req.user;

@@ -6,7 +6,6 @@ export class SignUpDto {
   username: string;
   @ApiProperty()
   password: string;
-  @ApiProperty()
   @IsEmail()
   @ApiProperty()
   email: string;
@@ -30,4 +29,15 @@ export class TokenDto {
 export class TokenDtoWithUserId extends TokenDto {
   @ApiProperty()
   userId: string;
+}
+
+export class UserFromJwtDto {
+  @ApiProperty()
+  sub: string;
+  @ApiProperty()
+  userId: string;
+  @ApiProperty()
+  iat: number;
+  @ApiProperty()
+  exp: number;
 }

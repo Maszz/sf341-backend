@@ -107,7 +107,7 @@ export class AuthService {
   //   return tokens;
   // }
 
-  async logout(sub: string): Promise<boolean> {
+  async logout(userId: string): Promise<boolean> {
     // const decodedSub = await this.decryptJwtPayload({
     //   sub: sub,
     //   type: tokenType.accessToken,
@@ -117,7 +117,7 @@ export class AuthService {
         hashedRt: {
           not: null,
         },
-        userId: sub,
+        userId: userId,
       },
       data: { hashedRt: null },
     });

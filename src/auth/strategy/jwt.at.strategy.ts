@@ -40,7 +40,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (!payload) {
       return false;
     }
-    const cached = await this.redis.get(payload.userId);
+    const cached = await this.redis.get(payload.sub);
     if (cached) {
       this.logger.log('Cached user found: ' + cached, 'Cache');
       payload.userId = cached;
@@ -48,24 +48,26 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       return payload;
     }
 
-    const username = await this.authService.decryptJwtPayload({
-      data: payload.userId,
-      type: tokenType.accessToken,
-    });
+    // const username = await this.authService.decryptJwtPayload({
+    //   data: payload.userId,
+    //   type: tokenType.accessToken,
+    // });
     // const user = (await this.userService.user(
     //   { username: username },
     //   { Hashed: true },
     // )) as any;
     const user = await this.prisma.userHashedData.findUnique({
       where: {
-        userId: username,
+        id: payload.sub,
       },
     });
     // console.log(user);
     if (!user || !user.hashedRt) {
       return false;
     }
-    await this.redis.set(payload.userId, user.userId, 'EX', 3);
+    // await this.redis.set(payload.userId, user.userId, 'EX', 3);
+    await this.redis.set(payload.sub, user.userId, 'EX', 3);
+
     payload.userId = user.userId;
     return payload;
   }
