@@ -111,7 +111,7 @@
     "url": "git+https://github.com/Maszz/sf341-backend"
   },
   "auto-changelog": {
-    "output": "HISTORY.md",
+    "output": "CHANGELOG.md",
     "template": "keepachangelog",
     "unreleased": true,
     "commitLimit": false
