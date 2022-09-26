@@ -21,7 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "np": "npx np --no-publish",
     "doc-gen": "npx compodoc -p tsconfig.json -n 'Backend Server' -d backend-docs",
-    "release": "standard-version"
+    "version": "auto-changelog -p"
   },
   "dependencies": {
     "@liaoliaots/nestjs-redis": "^9.0.1",
@@ -73,6 +73,7 @@
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "auto-changelog": "^2.4.0",
     "eslint": "^8.23.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
@@ -108,5 +109,11 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Maszz/sf341-backend"
+  },
+  "auto-changelog": {
+    "output": "HISTORY.md",
+    "template": "keepachangelog",
+    "unreleased": true,
+    "commitLimit": false
   }
 }
