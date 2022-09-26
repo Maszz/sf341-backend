@@ -1,6 +1,6 @@
 {
   "name": "graphql",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "author": "",
   "private": true,
@@ -21,7 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "np": "npx np --no-publish",
     "doc-gen": "npx compodoc -p tsconfig.json -n 'Backend Server' -d backend-docs",
-    "version": "auto-changelog -p"
+    "version": "auto-changelog --stdout"
   },
   "dependencies": {
     "@liaoliaots/nestjs-redis": "^9.0.1",
