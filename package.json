@@ -19,7 +19,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "np": "np --no-publish",
+    "np": "npx np --no-publish",
     "doc-gen": "npx compodoc -p tsconfig.json -n 'Backend Server' -d backend-docs"
   },
   "dependencies": {
