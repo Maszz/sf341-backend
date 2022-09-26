@@ -25,6 +25,7 @@ import { LoggerMiddleware } from './logger/logger.middleware';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { ConfigService } from '@nestjs/config';
 import { EventModule } from './event/event.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
 const configOptionForRoot = {
   load: [
     envConfigObject,
@@ -72,6 +73,14 @@ const configOptionForRoot = {
     AuthModule,
     UserModule,
     EventModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'backend-docs'),
+      serveRoot: '/docs',
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'api-docs'),
+      serveRoot: '/sf341-docs',
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

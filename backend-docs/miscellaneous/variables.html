@@ -1,0 +1,489 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Backend Server</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">Backend Server</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content miscellaneous-variables">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li>Miscellaneous</li>
+  <li>Variables</li>
+</ol>
+
+<section>
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <ul class="index-list">
+                        <li>
+                            <a href="#cacheDatabaseConfigObject" title="src/config/cacheDatabase.config.ts" ><b>cacheDatabaseConfigObject</b>&nbsp;&nbsp;&nbsp;(src/.../cacheDatabase.config.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#configOptionForRoot" title="src/app.module.ts" ><b>configOptionForRoot</b>&nbsp;&nbsp;&nbsp;(src/.../app.module.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#envConfigObject" title="src/config/env.Config.ts" ><b>envConfigObject</b>&nbsp;&nbsp;&nbsp;(src/.../env.Config.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#GetCurrentUser" title="src/auth/decorators/getCurrentUser.decorator.ts" ><b>GetCurrentUser</b>&nbsp;&nbsp;&nbsp;(src/.../getCurrentUser.decorator.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#GetCurrentUserCookie" title="src/auth/decorators/getCurrentUserCookie.decorator.ts" ><b>GetCurrentUserCookie</b>&nbsp;&nbsp;&nbsp;(src/.../getCurrentUserCookie.decorator.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#JwtKeyConfigObject" title="src/config/key.config.ts" ><b>JwtKeyConfigObject</b>&nbsp;&nbsp;&nbsp;(src/.../key.config.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#pubSub" title="src/message/message.resolver.ts" ><b>pubSub</b>&nbsp;&nbsp;&nbsp;(src/.../message.resolver.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#queueDatabaseConfigObject" title="src/config/queueDatabase.config.ts" ><b>queueDatabaseConfigObject</b>&nbsp;&nbsp;&nbsp;(src/.../queueDatabase.config.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#UseCookie" title="src/auth/decorators/UseCookie.decorator.ts" ><b>UseCookie</b>&nbsp;&nbsp;&nbsp;(src/.../UseCookie.decorator.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#winstonLogger" title="src/logger/winston.ts" ><b>winstonLogger</b>&nbsp;&nbsp;&nbsp;(src/.../winston.ts)</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+    <h3>src/config/cacheDatabase.config.ts</h3>
+    <section>
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cacheDatabaseConfigObject"></a>
+                    <span class="name">
+                        <span ><b>cacheDatabaseConfigObject</b></span>
+                        <a href="#cacheDatabaseConfigObject"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>registerAs&lt;CacheDatabaseConfig&gt;(
+  &#x27;cacheDatabase&#x27;,
+  () &#x3D;&gt; ({
+    ttl: parseInt(process.env.CACHE_DATABASE_CONFIG_TTL) || 5, // seconds
+    max: parseInt(process.env.CACHE_DATABASE_CONFIG_MAX) || 10, // maximum number of items in cache
+    isGlobal: true,
+    host: process.env.CACHE_DATABASE_CONFIG_HOST,
+    port: parseInt(process.env.CACHE_DATABASE_CONFIG_PORT),
+    password: process.env.CACHE_DATABASE_CONFIG_PASSWORD || undefined,
+  }),
+)</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/app.module.ts</h3>
+    <section>
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="configOptionForRoot"></a>
+                    <span class="name">
+                        <span ><b>configOptionForRoot</b></span>
+                        <a href="#configOptionForRoot"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+  load: [
+    envConfigObject,
+    // queueDatabaseConfigObject,
+    cacheDatabaseConfigObject,
+    JwtKeyConfigObject,
+  ],
+  cache: true,
+  isGlobal: true,
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/config/env.Config.ts</h3>
+    <section>
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="envConfigObject"></a>
+                    <span class="name">
+                        <span ><b>envConfigObject</b></span>
+                        <a href="#envConfigObject"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>registerAs&lt;envConfig&gt;(&#x27;envConfig&#x27;, () &#x3D;&gt; ({
+  port: parseInt(process.env.PORT),
+  globalPrefix: process.env.GLOBAL_PREFIX || &#x27;&#x27;,
+}))</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/auth/decorators/getCurrentUser.decorator.ts</h3>
+    <section>
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="GetCurrentUser"></a>
+                    <span class="name">
+                        <span ><b>GetCurrentUser</b></span>
+                        <a href="#GetCurrentUser"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>createParamDecorator(
+  (data: keyof JwtPayloadWithRt | undefined, context: ExecutionContext) &#x3D;&gt; {
+    const request &#x3D; context.switchToHttp().getRequest();
+    if (!data) return request.user;
+    return request.user[data];
+  },
+)</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/auth/decorators/getCurrentUserCookie.decorator.ts</h3>
+    <section>
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="GetCurrentUserCookie"></a>
+                    <span class="name">
+                        <span ><b>GetCurrentUserCookie</b></span>
+                        <a href="#GetCurrentUserCookie"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>createParamDecorator(
+  (data: string, ctx: ExecutionContext) &#x3D;&gt; {
+    const request &#x3D; ctx.switchToHttp().getRequest() as Request;
+    return data ? request.signedCookies?.[data] : request.signedCookies;
+  },
+)</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/config/key.config.ts</h3>
+    <section>
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="JwtKeyConfigObject"></a>
+                    <span class="name">
+                        <span ><b>JwtKeyConfigObject</b></span>
+                        <a href="#JwtKeyConfigObject"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>registerAs&lt;AuthKey&gt;(&#x27;jwtKey&#x27;, () &#x3D;&gt; ({
+  at_privateKey: Buffer.from(process.env.AT_PRIVATE, &#x27;base64&#x27;).toString(&#x27;utf8&#x27;),
+  at_publicKey: Buffer.from(process.env.AT_PUBLIC, &#x27;base64&#x27;).toString(&#x27;utf8&#x27;),
+  rt_privateKey: Buffer.from(process.env.RT_PRIVATE, &#x27;base64&#x27;).toString(&#x27;utf8&#x27;),
+  rt_publicKey: Buffer.from(process.env.RT_PUBLIC, &#x27;base64&#x27;).toString(&#x27;utf8&#x27;),
+}))</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/message/message.resolver.ts</h3>
+    <section>
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="pubSub"></a>
+                    <span class="name">
+                        <span ><b>pubSub</b></span>
+                        <a href="#pubSub"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new PubSub()</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/config/queueDatabase.config.ts</h3>
+    <section>
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="queueDatabaseConfigObject"></a>
+                    <span class="name">
+                        <span ><b>queueDatabaseConfigObject</b></span>
+                        <a href="#queueDatabaseConfigObject"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>registerAs&lt;QueueDatabaseConfig&gt;(
+  &#x27;queueDatabase&#x27;,
+  () &#x3D;&gt; ({
+    host: process.env.QUEUE_DATABASE_CONFIG_HOST,
+    port: parseInt(process.env.QUEUE_DATABASE_CONFIG_PORT),
+    password: process.env.QUEUE_DATABASE_CONFIG_PASSWORD || undefined,
+  }),
+)</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/auth/decorators/UseCookie.decorator.ts</h3>
+    <section>
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="UseCookie"></a>
+                    <span class="name">
+                        <span ><b>UseCookie</b></span>
+                        <a href="#UseCookie"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>createParamDecorator(
+  (useCookieContext: UseCookieContext, ctx: ExecutionContext) &#x3D;&gt; {
+    const response &#x3D; ctx.switchToHttp().getResponse() as Response;
+    let useCookie: (key?: string, value?: string) &#x3D;&gt; void;
+    if (useCookieContext &#x3D;&#x3D; UseCookieContext.clearTokens) {
+      useCookie &#x3D; (key: string) &#x3D;&gt; {
+        return response.clearCookie(key);
+      };
+    } else {
+      useCookie &#x3D; (value: string) &#x3D;&gt; {
+        return response.cookie(useCookieContext, value, {
+          // signed: true,
+          // httpOnly: true,
+          /**
+           * use this when want use authorization header with Cookies
+           */
+        });
+      };
+    }
+
+    return useCookie;
+  },
+)</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/logger/winston.ts</h3>
+    <section>
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="winstonLogger"></a>
+                    <span class="name">
+                        <span ><b>winstonLogger</b></span>
+                        <a href="#winstonLogger"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>WinstonModule.createLogger({
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.ms(),
+        nestWinstonModuleUtilities.format.nestLike(&#x27;App&#x27;, {
+          prettyPrint: true,
+        }),
+      ),
+    }),
+    // new winston.transports.MongoDB({
+    //   db: process.env.MONGO_URI_NAS,
+    //   options: {
+    //     useUnifiedTopology: true,
+    //   },
+    //   collection: &#x27;logs&#x27;,
+    // }),
+  ],
+})</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Winston Logger Instnace.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'miscellaneous-variables';
+            var COMPODOC_CURRENT_PAGE_URL = 'variables.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
