@@ -7,17 +7,18 @@ FROM node:lts-alpine
 WORKDIR /usr/src/app
 COPY ./src .
 COPY ./prisma/schema.prisma ./prisma/ 
-COPY package.json package-lock.json tsconfig.json tsconfig.build.json ./
+COPY package.json yarn.lock tsconfig.json tsconfig.build.json ./
 # COPY --chown=node:node package.json package-lock.json ./
 ENV PORT=3333
 
-RUN npm ci
+RUN yarn install --immutable
+
 # RUN npm install --production
-RUN npm install @prisma/client
+RUN yarn add @prisma/client
 
 
 RUN npx prisma generate
-RUN npm run build --production
+RUN yarn build
 CMD node ./dist/main.js
 
 USER node
