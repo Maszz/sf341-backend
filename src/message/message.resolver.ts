@@ -17,14 +17,18 @@ import { MessageService } from './message.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuardGraphql } from '../auth/guard/jwt-auth-graphql.guard';
 import { Prisma } from '@prisma/client';
-
+@InputType()
+export class SubscripionInput {
+  @Field((type) => String, { nullable: false })
+  eventChatId: string;
+}
 @InputType()
 export class GetMessageInput {
   @Field((type) => Int, { nullable: true, defaultValue: 0 })
   offset?: number;
   @Field((type) => Int, { nullable: true, defaultValue: 20 })
   limit?: number;
-  @Field((type) => String, { nullable: true })
+  @Field((type) => String, { nullable: false })
   eventChatId: string;
 }
 @InputType()
@@ -78,7 +82,9 @@ export class MessageResolver {
       },
     };
     const data = await this.msgSservice.createMessage(preData);
-    pubSub.publish('messageAdded', { messageAdded: data });
+    pubSub.publish(`chatMessageAsyncTrigger:${saveMessageData.eventChatId}`, {
+      messageAdded: data,
+    });
 
     return data;
   }
@@ -87,9 +93,11 @@ export class MessageResolver {
   //     const { id } = author;
   //     return this.postsService.findAll({ authorId: id });
   //   }
-
+  // @Args('subsciptionInput') subscriptionInput: SubscripionInput
   @Subscription((returns) => Message)
-  messageAdded() {
-    return pubSub.asyncIterator('messageAdded');
+  messageAdded(@Args('subsciptionInput') subscriptionInput: SubscripionInput) {
+    return pubSub.asyncIterator(
+      `chatMessageAsyncTrigger:${subscriptionInput.eventChatId}`,
+    );
   }
 }

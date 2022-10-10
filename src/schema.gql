@@ -22,7 +22,7 @@ type Query {
 input GetMessageInput {
   offset: Int = 0
   limit: Int = 20
-  eventChatId: String
+  eventChatId: String!
 }
 
 type Mutation {
@@ -36,5 +36,9 @@ input SaveMessageInput {
 }
 
 type Subscription {
-  messageAdded: Message!
+  messageAdded(subsciptionInput: SubscripionInput!): Message!
+}
+
+input SubscripionInput {
+  eventChatId: String!
 }
