@@ -43,7 +43,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const cached = await this.redis.get(payload.sub);
     if (cached) {
       this.logger.log('Cached user found: ' + cached, 'Cache');
-      payload.userId = cached;
+      payload.id = cached;
 
       return payload;
     }
@@ -68,7 +68,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     // await this.redis.set(payload.userId, user.userId, 'EX', 3);
     await this.redis.set(payload.sub, user.userId, 'EX', 3);
 
-    payload.userId = user.userId;
+    payload.id = user.userId;
     return payload;
   }
 }

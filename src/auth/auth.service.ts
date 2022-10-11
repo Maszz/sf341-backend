@@ -57,10 +57,6 @@ export class AuthService {
     return tokens;
   }
   async signinLocal(dto: SignInRequestDto): Promise<TokenDto> {
-    // const user = (await this.userService.user(
-    //   { username: dto.username },
-    //   { Hashed: true },
-    // )) as UserWithTokens;
     const user = await this.prisma.userHashedData.findUnique({
       where: {
         userId: dto.username,
@@ -80,33 +76,14 @@ export class AuthService {
 
     return tokens;
   }
-
-  // async signInOAuth(userOauth): Promise<any> {
-  //   const payload = { username: userOauth.username, sub: userOauth.id };
-  //   const user = await this.userService.user({ email: payload.username });
-  //   if (!user) {
-  //     const newUser = await this.userService.createUser({
-  //       username: payload.username,
-  //       name: userOauth.name,
-  //       email: payload.username,
-  //       hashpw: null,
-  //     });
-  //     const tokens = await this.getTokens({
-  //       sub: user.id,
-  //       username: newUser.username,
-  //     });
-  //     await this.updateRefreshTokenHash(newUser.username, tokens.refresh_token);
-  //     return tokens;
-  //   }
-  //   const tokens = await this.getTokens({
-  //     sub: user.id,
-  //     username: user.username,
-  //   });
-  //   await this.updateRefreshTokenHash(user.username, tokens.refresh_token);
-
-  //   return tokens;
-  // }
-
+  /**
+   * Multi device support
+   * @TODO - create 1-to-many relation between user and session
+   *       - remove userId from jwtpayload (don't need it), this day include it cause of
+   *         logout use it for query secret table. when have session table can use sub to query rt
+   *          from session table directly
+   *       - update logout logic to use session table
+   */
   async logout(userId: string): Promise<boolean> {
     // const decodedSub = await this.decryptJwtPayload({
     //   sub: sub,
@@ -135,7 +112,7 @@ export class AuthService {
     ).toString();
 
     const at = this.jwtService.signAsync(
-      { sub: payload.sub, userId: encryptedAt },
+      { sub: payload.sub, id: encryptedAt },
       {
         expiresIn: '20m',
         algorithm: 'RS256',
@@ -148,7 +125,7 @@ export class AuthService {
       this.rtPrivateKey,
     ).toString();
     const rt = this.jwtService.signAsync(
-      { sub: payload.sub, userId: encryptedRt },
+      { sub: payload.sub, id: encryptedRt },
       {
         expiresIn: '1d',
         algorithm: 'RS256',
@@ -161,19 +138,15 @@ export class AuthService {
       refresh_token: await rt,
     };
   }
-  async refreshTokens(userId: string, rt: string): Promise<TokenDto> {
-    const decodedSub = await this.decryptJwtPayload({
-      data: userId,
+  async refreshTokens(encryptUserId: string, rt: string): Promise<TokenDto> {
+    const decodedUserId = await this.decryptJwtPayload({
+      data: encryptUserId,
       type: tokenType.refreshToken,
     });
 
-    // const user = (await this.userService.user(
-    //   { username: decodedSub },
-    //   { Hashed: true },
-    // )) as UserWithTokens;
     const user = await this.prisma.userHashedData.findUnique({
       where: {
-        userId: decodedSub,
+        userId: decodedUserId,
       },
     });
     if (!user || !user.hashedRt) throw new ForbiddenException('Access Denied');

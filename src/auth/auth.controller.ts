@@ -102,7 +102,7 @@ export class AuthController {
     description: 'Unauthorized',
   })
   @HttpCode(200)
-  async logout(@GetCurrentUser('userId') userId: string): Promise<boolean> {
+  async logout(@GetCurrentUser('id') userId: string): Promise<boolean> {
     return this.authService.logout(userId);
   }
 
@@ -122,7 +122,7 @@ export class AuthController {
     type: TokenDto,
   })
   async refresh(
-    @GetCurrentUser('userId') userId: string,
+    @GetCurrentUser('id') userId: string,
     @GetCurrentUser('refreshToken') refreshToken: string,
   ): Promise<TokenDto> {
     const { access_token, refresh_token } =
