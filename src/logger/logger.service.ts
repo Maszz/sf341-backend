@@ -30,6 +30,10 @@ export class LoggerService {
       timestamp: new Date(),
     });
   }
+  logWithoutSave(message: string, context?: string): void {
+    context = context || 'No context';
+    this.logger.log(message, context);
+  }
 
   /**
    *  Write a `error` level log.
