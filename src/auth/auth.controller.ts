@@ -65,8 +65,8 @@ export class AuthController {
     type: TokenDto,
   })
   async register(@Body() req: SignUpDto): Promise<TokenDto> {
-    const { username, name, email, password } = req;
-    const validatedDto = { username, name, email, password };
+    const { username, name, email, password, deviceId } = req;
+    const validatedDto = { username, name, email, password, deviceId };
     const { access_token, refresh_token } = await this.authService.signUpLocal(
       validatedDto,
     );
@@ -81,8 +81,8 @@ export class AuthController {
     type: TokenDtoWithUserId,
   })
   async login(@Body() req: SignInRequestDto): Promise<TokenDtoWithUserId> {
-    const { username, password } = req;
-    const validatedDto = { username, password };
+    const { username, password, deviceId } = req;
+    const validatedDto = { username, password, deviceId };
     const response = this.authService.signinLocal(validatedDto);
     const { access_token, refresh_token } = await response;
     // console.log(rawReq.csrfToken());
@@ -102,8 +102,8 @@ export class AuthController {
     description: 'Unauthorized',
   })
   @HttpCode(200)
-  async logout(@GetCurrentUser('id') userId: string): Promise<boolean> {
-    return this.authService.logout(userId);
+  async logout(@GetCurrentUser('did') devId: string): Promise<boolean> {
+    return this.authService.logout(devId);
   }
 
   @UseGuards(RtGuard)
@@ -122,11 +122,18 @@ export class AuthController {
     type: TokenDto,
   })
   async refresh(
-    @GetCurrentUser('id') userId: string,
+    @GetCurrentUser('sub') userId: string,
+    // @GetCurrentUser('id') username: string,
+    @GetCurrentUser('did') devId: string,
     @GetCurrentUser('refreshToken') refreshToken: string,
   ): Promise<TokenDto> {
+    console.log(devId);
     const { access_token, refresh_token } =
-      await this.authService.refreshTokens(userId, refreshToken);
+      await this.authService.refreshTokens({
+        userId: userId,
+        rt: refreshToken,
+        devId: devId,
+      });
 
     return { access_token, refresh_token };
   }

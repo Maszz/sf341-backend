@@ -8,7 +8,7 @@ import { JwtPayloadForSign } from '../types';
 import { Request } from 'express';
 import { TripleDES, enc } from 'crypto-js';
 import { PrismaService } from '../prisma/prisma.service';
-import { User, UserHashedData } from 'prisma/prisma-client';
+import { User, Prisma } from 'prisma/prisma-client';
 
 import {
   tokenType,
@@ -32,47 +32,98 @@ export class AuthService {
 
   async signUpLocal(authDto: SignUpDto): Promise<TokenDto> {
     const hash = await this.hashData(authDto.password);
-    const newUser = await this.userService.createUser({
-      username: authDto.username,
-      email: authDto.email,
-      // hashpw: hash,
-      profile: {
-        create: {
-          name: authDto.name,
+
+    const newUser = await this.prisma.user
+      .create({
+        data: {
+          username: authDto.username,
+          email: authDto.email,
+          profile: {
+            create: {
+              name: authDto.name,
+            },
+          },
+          userSecret: {
+            create: {
+              hashpw: hash,
+            },
+          },
+          Session: {
+            create: {
+              deviceId: authDto.deviceId,
+              hashedAt: null,
+              hashedRt: null,
+            },
+          },
         },
-      },
-      userHashedData: {
-        create: {
-          hashpw: hash,
-        },
-      },
-    });
+      })
+      .catch((error) => {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          if (error.code === 'P2002') {
+            throw new ForbiddenException('Credentials incorrect');
+          }
+        }
+        throw error;
+      });
 
     const tokens = await this.getTokens({
       sub: newUser.id,
-      username: newUser.username,
+      devId: authDto.deviceId,
+      isRefresh: false,
     });
-    await this.updateRefreshTokenHash(newUser.username, tokens.refresh_token);
+    await this.updateRefreshTokenHash({
+      at: tokens.access_token,
+      rt: tokens.refresh_token,
+      devId: authDto.deviceId,
+    });
 
     return tokens;
   }
   async signinLocal(dto: SignInRequestDto): Promise<TokenDto> {
-    const user = await this.prisma.userHashedData.findUnique({
-      where: {
-        userId: dto.username,
+    const user = await this.prisma.user.findUnique({
+      where: { username: dto.username },
+      include: {
+        userSecret: true,
       },
     });
 
     if (!user) throw new ForbiddenException('Access Denied(User)');
 
-    const passwordMatches = await argon.verify(user.hashpw, dto.password);
+    const passwordMatches = await argon.verify(
+      user.userSecret.hashpw,
+      dto.password,
+    );
     if (!passwordMatches) throw new ForbiddenException('Access Denied');
 
+    // Check user login from new Device or not ,if new device then create new session for it.
+    const sessionRef = await this.prisma.session.findUnique({
+      where: { deviceId: dto.deviceId },
+    });
     const tokens = await this.getTokens({
       sub: user.id,
-      username: user.userId,
+      devId: dto.deviceId,
+      isRefresh: false,
     });
-    await this.updateRefreshTokenHash(user.userId, tokens.refresh_token);
+
+    if (!sessionRef) {
+      const hashRt = await this.hashData(tokens.refresh_token);
+
+      await this.prisma.session.create({
+        data: {
+          deviceId: dto.deviceId,
+          hashedAt: tokens.access_token,
+          hashedRt: hashRt,
+          userId: user.id,
+        },
+      });
+      return tokens;
+    }
+
+    await this.updateRefreshTokenHash({
+      at: tokens.access_token,
+      rt: tokens.refresh_token,
+      devId: dto.deviceId,
+    });
 
     return tokens;
   }
@@ -83,49 +134,36 @@ export class AuthService {
    *         logout use it for query secret table. when have session table can use sub to query rt
    *          from session table directly
    *       - update logout logic to use session table
+   * @FINISH
    */
-  async logout(userId: string): Promise<boolean> {
-    // const decodedSub = await this.decryptJwtPayload({
-    //   sub: sub,
-    //   type: tokenType.accessToken,
-    // });
-    await this.prisma.userHashedData.updateMany({
+  async logout(devId: string): Promise<boolean> {
+    await this.prisma.session.updateMany({
       where: {
         hashedRt: {
           not: null,
         },
-        userId: userId,
+        deviceId: devId,
       },
-      data: { hashedRt: null },
+      data: { hashedRt: null, hashedAt: null },
     });
-
     return true;
   }
 
   async getTokens(payload: {
     sub: string;
-    username: string;
+    devId: string;
+    isRefresh?: boolean;
   }): Promise<TokenDto> {
-    const encryptedAt = TripleDES.encrypt(
-      `${payload.username}`,
-      this.atPrivateKey,
-    ).toString();
-
     const at = this.jwtService.signAsync(
-      { sub: payload.sub, id: encryptedAt },
+      { sub: payload.sub, did: payload.devId },
       {
         expiresIn: '20m',
         algorithm: 'RS256',
         privateKey: this.atPrivateKey,
       },
     );
-
-    const encryptedRt = TripleDES.encrypt(
-      `${payload.username}`,
-      this.rtPrivateKey,
-    ).toString();
     const rt = this.jwtService.signAsync(
-      { sub: payload.sub, id: encryptedRt },
+      { sub: payload.sub, did: payload.devId },
       {
         expiresIn: '1d',
         algorithm: 'RS256',
@@ -138,42 +176,57 @@ export class AuthService {
       refresh_token: await rt,
     };
   }
-  async refreshTokens(encryptUserId: string, rt: string): Promise<TokenDto> {
-    const decodedUserId = await this.decryptJwtPayload({
-      data: encryptUserId,
-      type: tokenType.refreshToken,
+  async refreshTokens(params: {
+    userId: string;
+    rt: string;
+    devId: string;
+  }): Promise<TokenDto> {
+    const { userId, rt, devId } = params;
+    const session = await this.prisma.session.findUnique({
+      where: { deviceId: devId },
     });
+    if (!session || !session.hashedRt)
+      throw new ForbiddenException('Access Denied');
 
-    const user = await this.prisma.userHashedData.findUnique({
-      where: {
-        userId: decodedUserId,
-      },
-    });
-    if (!user || !user.hashedRt) throw new ForbiddenException('Access Denied');
-
-    const rtMatches = await argon.verify(user.hashedRt, rt);
+    const rtMatches = await argon.verify(session.hashedRt, rt);
     if (!rtMatches) throw new ForbiddenException('Access Denied');
 
+    // when session come from refresh controller don't need to decrypt username because it need to re encrypt
+    // to pass with payload anyway
     const tokens = await this.getTokens({
-      sub: user.id,
-      username: user.userId,
+      sub: userId,
+      devId: devId,
+      isRefresh: true,
     });
-    await this.updateRefreshTokenHash(user.userId, tokens.refresh_token);
+    await this.updateRefreshTokenHash({
+      at: tokens.access_token,
+      rt: tokens.refresh_token,
+      devId: devId,
+    });
 
     return tokens;
   }
 
-  async updateRefreshTokenHash(username: string, rt: string): Promise<void> {
+  async updateRefreshTokenHash(params: {
+    at: string;
+    rt: string;
+    devId: string;
+  }): Promise<void> {
+    /**
+     * At - don't need to hash because it's short lived and frequently use to verify
+     */
+    const { at, rt, devId } = params;
     const hash = await this.hashData(rt);
-    await this.prisma.userHashedData.updateMany({
-      where: { userId: username },
-      data: { hashedRt: hash },
+
+    // console.log(ref);
+    await this.prisma.session.updateMany({
+      where: { deviceId: devId },
+      data: { hashedRt: hash, hashedAt: at },
     });
   }
 
   async hashData(data: string): Promise<string> {
     const hashed = await argon.hash(data);
-
     return hashed;
   }
 
@@ -184,8 +237,6 @@ export class AuthService {
         : this.rtPrivateKey;
 
     const decrypted = TripleDES.decrypt(payload.data, secret);
-    // console.log('IN process;', decrypted.toString());
-    // console.log('IN process;', decrypted.toString(enc.Utf8));
 
     return decrypted.toString(enc.Utf8);
   }
