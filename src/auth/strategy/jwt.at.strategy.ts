@@ -1,6 +1,6 @@
 import { ExtractJwt, Strategy, Inject } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { UserService } from '../../user/user.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../../types';
@@ -10,6 +10,7 @@ import { LoggerService } from '../../logger/logger.service';
 import { tokenType, TripleDesDecryptPayload } from '../auth.processor.types';
 import { RedisService } from '@liaoliaots/nestjs-redis';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Request } from 'express';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
@@ -31,44 +32,39 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       // jwtFromRequest: extractJwtFromCookie,
       ignoreExpiration: false,
+      passReqToCallback: true,
       secretOrKey: configService.get<string>('jwtKey.at_publicKey'),
     });
     this.redis = this.redisService.getClient();
   }
 
-  async validate(payload: JwtPayload): Promise<JwtPayload | boolean> {
+  async validate(
+    req: Request,
+    payload: JwtPayload,
+  ): Promise<JwtPayload | boolean> {
     if (!payload) {
       return false;
     }
-    const cached = await this.redis.get(payload.sub);
-    if (cached) {
-      this.logger.log('Cached user found: ' + cached, 'Cache');
-      payload.id = cached;
-
-      return payload;
-    }
-
-    // const username = await this.authService.decryptJwtPayload({
-    //   data: payload.userId,
-    //   type: tokenType.accessToken,
-    // });
-    // const user = (await this.userService.user(
-    //   { username: username },
-    //   { Hashed: true },
-    // )) as any;
-    const user = await this.prisma.userHashedData.findUnique({
+    const userSession = await this.prisma.session.findUnique({
       where: {
-        id: payload.sub,
+        deviceId: payload.did,
       },
     });
-    // console.log(user);
-    if (!user || !user.hashedRt) {
+    if (!userSession || !userSession.hashedAt || !userSession.hashedRt) {
+      // no session found
+      throw new ForbiddenException(
+        'this session is not found, please login again, or you loggedout',
+      );
       return false;
     }
-    // await this.redis.set(payload.userId, user.userId, 'EX', 3);
-    await this.redis.set(payload.sub, user.userId, 'EX', 3);
+    const accessToken = req?.get('authorization')?.replace('Bearer', '').trim();
+    if (userSession.hashedAt !== accessToken) {
+      // at is not matched with device id
+      throw new ForbiddenException(
+        'Access token expired due to new session appear',
+      );
+    }
 
-    payload.id = user.userId;
     return payload;
   }
 }

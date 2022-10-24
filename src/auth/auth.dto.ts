@@ -12,12 +12,24 @@ export class SignUpDto {
   @ApiProperty()
   @IsNotEmpty()
   name: string;
+  @ApiProperty()
+  deviceId: string;
+  @ApiProperty()
+  manufacturer: string;
+  @ApiProperty()
+  platform: string;
 }
 export class SignInRequestDto {
   @ApiProperty()
   username: string;
   @ApiProperty()
   password: string;
+  @ApiProperty()
+  deviceId: string;
+  @ApiProperty()
+  manufacturer: string;
+  @ApiProperty()
+  platform: string;
 }
 export class TokenDto {
   @ApiProperty()
