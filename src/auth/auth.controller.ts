@@ -65,8 +65,24 @@ export class AuthController {
     type: TokenDto,
   })
   async register(@Body() req: SignUpDto): Promise<TokenDto> {
-    const { username, name, email, password, deviceId } = req;
-    const validatedDto = { username, name, email, password, deviceId };
+    const {
+      username,
+      name,
+      email,
+      password,
+      deviceId,
+      manufacturer,
+      platform,
+    } = req;
+    const validatedDto = {
+      username,
+      name,
+      email,
+      password,
+      deviceId,
+      manufacturer,
+      platform,
+    };
     const { access_token, refresh_token } = await this.authService.signUpLocal(
       validatedDto,
     );
@@ -81,8 +97,15 @@ export class AuthController {
     type: TokenDtoWithUserId,
   })
   async login(@Body() req: SignInRequestDto): Promise<TokenDtoWithUserId> {
-    const { username, password, deviceId } = req;
-    const validatedDto = { username, password, deviceId };
+    const { username, password, deviceId, manufacturer, platform } = req;
+    const validatedDto = {
+      username,
+      password,
+      deviceId,
+      manufacturer,
+      platform,
+    };
+    console.log(validatedDto);
     const response = this.authService.signinLocal(validatedDto);
     const { access_token, refresh_token } = await response;
     // console.log(rawReq.csrfToken());

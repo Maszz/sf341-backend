@@ -14,6 +14,10 @@ export class SignUpDto {
   name: string;
   @ApiProperty()
   deviceId: string;
+  @ApiProperty()
+  manufacturer: string;
+  @ApiProperty()
+  platform: string;
 }
 export class SignInRequestDto {
   @ApiProperty()
@@ -22,6 +26,10 @@ export class SignInRequestDto {
   password: string;
   @ApiProperty()
   deviceId: string;
+  @ApiProperty()
+  manufacturer: string;
+  @ApiProperty()
+  platform: string;
 }
 export class TokenDto {
   @ApiProperty()

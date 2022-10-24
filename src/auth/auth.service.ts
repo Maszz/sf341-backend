@@ -51,6 +51,8 @@ export class AuthService {
           Session: {
             create: {
               deviceId: authDto.deviceId,
+              platform: authDto.platform,
+              manufacturer: authDto.manufacturer,
               hashedAt: null,
               hashedRt: null,
             },
@@ -107,13 +109,15 @@ export class AuthService {
 
     if (!sessionRef) {
       const hashRt = await this.hashData(tokens.refresh_token);
-
+      console.log('platform', dto.platform);
       await this.prisma.session.create({
         data: {
           deviceId: dto.deviceId,
           hashedAt: tokens.access_token,
           hashedRt: hashRt,
           userId: user.id,
+          platform: dto.platform,
+          manufacturer: dto.manufacturer,
         },
       });
       return tokens;
