@@ -47,7 +47,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
     const userSession = await this.prisma.session.findUnique({
       where: {
-        deviceId: payload.did,
+        id: payload.did,
       },
     });
     if (!userSession || !userSession.hashedAt || !userSession.hashedRt) {

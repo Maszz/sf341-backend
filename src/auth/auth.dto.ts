@@ -3,8 +3,10 @@ import { ApiProperty, ApiOkResponse } from '@nestjs/swagger';
 
 export class SignUpDto {
   @ApiProperty()
+  @IsNotEmpty()
   username: string;
   @ApiProperty()
+  @IsNotEmpty()
   password: string;
   @IsEmail()
   @ApiProperty()

@@ -67,16 +67,19 @@ export class AuthService {
         }
         throw error;
       });
-
+    // first session for this user only have 1 in query result
+    const session = await this.prisma.session.findMany({
+      where: { userId: newUser.id },
+    });
     const tokens = await this.getTokens({
       sub: newUser.id,
-      devId: authDto.deviceId,
+      devId: session[0].id,
       isRefresh: false,
     });
     await this.updateRefreshTokenHash({
       at: tokens.access_token,
       rt: tokens.refresh_token,
-      devId: authDto.deviceId,
+      devId: session[0].id,
     });
 
     return tokens;
@@ -98,35 +101,45 @@ export class AuthService {
     if (!passwordMatches) throw new ForbiddenException('Access Denied');
 
     // Check user login from new Device or not ,if new device then create new session for it.
-    const sessionRef = await this.prisma.session.findUnique({
-      where: { deviceId: dto.deviceId },
+    const sessionRef = await this.prisma.session.findMany({
+      where: { deviceId: dto.deviceId, userId: user.id },
     });
-    const tokens = await this.getTokens({
-      sub: user.id,
-      devId: dto.deviceId,
-      isRefresh: false,
-    });
+    let tokens: TokenDto;
+    let session: string;
+    if (sessionRef[0]) {
+      tokens = await this.getTokens({
+        sub: user.id,
+        devId: sessionRef[0].id,
+        isRefresh: false,
+      });
+      session = sessionRef[0].id;
+    }
 
     if (!sessionRef) {
       const hashRt = await this.hashData(tokens.refresh_token);
       console.log('platform', dto.platform);
-      await this.prisma.session.create({
+      const newSession = await this.prisma.session.create({
         data: {
           deviceId: dto.deviceId,
-          hashedAt: tokens.access_token,
-          hashedRt: hashRt,
+          hashedAt: null,
+          hashedRt: null,
           userId: user.id,
           platform: dto.platform,
           manufacturer: dto.manufacturer,
         },
       });
-      return tokens;
+      tokens = await this.getTokens({
+        sub: user.id,
+        devId: newSession.id,
+        isRefresh: false,
+      });
+      session = newSession.id;
     }
 
     await this.updateRefreshTokenHash({
       at: tokens.access_token,
       rt: tokens.refresh_token,
-      devId: dto.deviceId,
+      devId: session,
     });
 
     return tokens;
@@ -146,7 +159,7 @@ export class AuthService {
         hashedRt: {
           not: null,
         },
-        deviceId: devId,
+        id: devId,
       },
       data: { hashedRt: null, hashedAt: null },
     });
@@ -187,8 +200,9 @@ export class AuthService {
   }): Promise<TokenDto> {
     const { userId, rt, devId } = params;
     const session = await this.prisma.session.findUnique({
-      where: { deviceId: devId },
+      where: { id: devId },
     });
+    // console.log(session);
     if (!session || !session.hashedRt)
       throw new ForbiddenException('Access Denied');
 
@@ -223,8 +237,8 @@ export class AuthService {
     const hash = await this.hashData(rt);
 
     // console.log(ref);
-    await this.prisma.session.updateMany({
-      where: { deviceId: devId },
+    await this.prisma.session.update({
+      where: { id: devId },
       data: { hashedRt: hash, hashedAt: at },
     });
   }
