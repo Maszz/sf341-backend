@@ -152,7 +152,7 @@ export class AuthController {
     @GetCurrentUser('did') devId: string,
     @GetCurrentUser('refreshToken') refreshToken: string,
   ): Promise<TokenDto> {
-    console.log(devId);
+    // console.log(devId);
     const { access_token, refresh_token } =
       await this.authService.refreshTokens({
         userId: userId,

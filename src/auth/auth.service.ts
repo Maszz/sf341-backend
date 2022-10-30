@@ -131,7 +131,6 @@ export class AuthService {
         isRefresh: false,
       });
       session = sessionRef[0].id;
-      console.log('old device');
     }
     if (sessionRef.length === 0) {
       // const hashRt = await this.hashData(tokens.refresh_token);
