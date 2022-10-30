@@ -50,11 +50,20 @@ export class AuthService {
           },
           Session: {
             create: {
-              deviceId: authDto.deviceId,
-              platform: authDto.platform,
-              manufacturer: authDto.manufacturer,
               hashedAt: null,
               hashedRt: null,
+              Devices: {
+                connectOrCreate: {
+                  where: {
+                    deviceId: authDto.deviceId,
+                  },
+                  create: {
+                    deviceId: authDto.deviceId,
+                    platform: authDto.platform,
+                    manufacturer: authDto.manufacturer,
+                  },
+                },
+              },
             },
           },
         },
@@ -104,7 +113,14 @@ export class AuthService {
 
     // Check user login from new Device or not ,if new device then create new session for it.
     const sessionRef = await this.prisma.session.findMany({
-      where: { deviceId: dto.deviceId, userId: user.id },
+      where: {
+        Devices: {
+          is: {
+            deviceId: dto.deviceId,
+          },
+        },
+        userId: user.id,
+      },
     });
     let tokens: TokenDto;
     let session: string;
@@ -115,19 +131,32 @@ export class AuthService {
         isRefresh: false,
       });
       session = sessionRef[0].id;
+      console.log('old device');
     }
+    if (sessionRef.length === 0) {
+      // const hashRt = await this.hashData(tokens.refresh_token);
 
-    if (!sessionRef) {
-      const hashRt = await this.hashData(tokens.refresh_token);
-      console.log('platform', dto.platform);
       const newSession = await this.prisma.session.create({
         data: {
-          deviceId: dto.deviceId,
+          Devices: {
+            connectOrCreate: {
+              where: {
+                deviceId: dto.deviceId,
+              },
+              create: {
+                platform: dto.platform,
+                manufacturer: dto.manufacturer,
+                deviceId: dto.deviceId,
+              },
+            },
+          },
+          user: {
+            connect: {
+              id: user.id,
+            },
+          },
           hashedAt: null,
           hashedRt: null,
-          userId: user.id,
-          platform: dto.platform,
-          manufacturer: dto.manufacturer,
         },
       });
       tokens = await this.getTokens({

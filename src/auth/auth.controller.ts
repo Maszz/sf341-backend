@@ -107,7 +107,7 @@ export class AuthController {
       manufacturer,
       platform,
     };
-    console.log(validatedDto);
+    // console.log(validatedDto);
     const response = this.authService.signinLocal(validatedDto);
     const { access_token, refresh_token, onboarding } = await response;
     // console.log(rawReq.csrfToken());
