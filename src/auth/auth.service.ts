@@ -84,7 +84,9 @@ export class AuthService {
 
     return tokens;
   }
-  async signinLocal(dto: SignInRequestDto): Promise<TokenDto> {
+  async signinLocal(
+    dto: SignInRequestDto,
+  ): Promise<TokenDto & { onboarding: boolean }> {
     const user = await this.prisma.user.findUnique({
       where: { username: dto.username },
       include: {
@@ -142,7 +144,7 @@ export class AuthService {
       devId: session,
     });
 
-    return tokens;
+    return { ...tokens, onboarding: user.onboarding };
   }
   /**
    * Multi device support

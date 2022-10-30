@@ -62,9 +62,9 @@ export class AuthController {
   @Post('/signup')
   @ApiCreatedResponse({
     description: 'Return Token',
-    type: TokenDto,
+    type: TokenDtoWithUserId,
   })
-  async register(@Body() req: SignUpDto): Promise<TokenDto> {
+  async register(@Body() req: SignUpDto): Promise<TokenDtoWithUserId> {
     const {
       username,
       name,
@@ -87,7 +87,7 @@ export class AuthController {
       validatedDto,
     );
 
-    return { access_token, refresh_token };
+    return { userId: req.username, access_token, refresh_token };
   }
 
   @Post('/signin')
@@ -96,7 +96,9 @@ export class AuthController {
     description: 'Return Token',
     type: TokenDtoWithUserId,
   })
-  async login(@Body() req: SignInRequestDto): Promise<TokenDtoWithUserId> {
+  async login(
+    @Body() req: SignInRequestDto,
+  ): Promise<TokenDtoWithUserId & { onboarding: boolean }> {
     const { username, password, deviceId, manufacturer, platform } = req;
     const validatedDto = {
       username,
@@ -107,12 +109,12 @@ export class AuthController {
     };
     console.log(validatedDto);
     const response = this.authService.signinLocal(validatedDto);
-    const { access_token, refresh_token } = await response;
+    const { access_token, refresh_token, onboarding } = await response;
     // console.log(rawReq.csrfToken());
     // useAccesTokenCookie(access_token);
     // useRefreshTokenCookie(refresh_token);
 
-    return { userId: req.username, access_token, refresh_token };
+    return { userId: req.username, access_token, refresh_token, onboarding };
   }
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

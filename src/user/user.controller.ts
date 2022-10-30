@@ -15,6 +15,7 @@ import { LoggerService } from '../logger/logger.service';
 import { User, Prisma } from '@prisma/client';
 import { UserUpdateProfileDto } from './dto/user-update-profile.dto';
 import { ApiProperty, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { GetCurrentUser } from 'src/auth/decorators/getCurrentUser.decorator';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
@@ -65,4 +66,55 @@ export class UserController {
     });
     return user;
   }
+
+  @Post('update/onboarding')
+  @HttpCode(200)
+  async updateUserOnboarding(
+    @Body() args: UpdateOnboardingParams,
+  ): Promise<{ result: boolean }> {
+    // TODO
+    const user = await this.userService.UpdateOnboarding(args);
+    return { result: user.onboarding };
+  }
+  @Post('update/onboarding/gender')
+  @HttpCode(200)
+  async updateUserOnboardingGender(
+    @Body() args: UpdateOnboardingGenderParams,
+  ): Promise<{ result: boolean }> {
+    // TODO
+    const user = await this.userService.UpdateOnboardingGender(args);
+    return { result: true };
+  }
+  @Post('update/tags')
+  @HttpCode(200)
+  async updateTags(
+    @Body() args: UpdateTagsParams,
+  ): Promise<{ result: boolean }> {
+    // TODO
+    const user = await this.userService.setCategoryToUser(args);
+    return { result: true };
+  }
+  @Get('tags')
+  @HttpCode(200)
+  async getTags(): Promise<{ name: string }[]> {
+    // TODO
+    const tags = await this.userService.getTags();
+    tags.map((tag) => {
+      return tag.name;
+    });
+    return tags;
+  }
+}
+
+export interface UpdateOnboardingParams {
+  onboarding: boolean;
+  userId: string;
+}
+export interface UpdateOnboardingGenderParams {
+  gender: string;
+  userId: string;
+}
+export interface UpdateTagsParams {
+  tags: string[];
+  userId: string;
 }

@@ -1,6 +1,10 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
+import {
+  UpdateOnboardingParams,
+  UpdateOnboardingGenderParams,
+} from './user.controller';
 interface IUpdateProfileParamsArgs {
   updateParams: {
     name?: string;
@@ -79,6 +83,75 @@ export class UserService {
         profile: {
           update: updateParams,
         },
+      },
+    });
+  }
+
+  async UpdateOnboarding(args: UpdateOnboardingParams) {
+    const { onboarding, userId } = args;
+    return this.prisma.user.update({
+      where: {
+        username: userId,
+      },
+      data: {
+        onboarding: onboarding,
+      },
+    });
+  }
+
+  async UpdateOnboardingGender(args: UpdateOnboardingGenderParams) {
+    const { gender, userId } = args;
+    return this.prisma.user.update({
+      where: {
+        username: userId,
+      },
+      data: {
+        profile: {
+          update: {
+            gender: gender,
+          },
+        },
+      },
+    });
+  }
+
+  async setCategoryToUser({
+    tags,
+    userId,
+  }: {
+    tags: string[];
+    userId: string;
+  }) {
+    const categoryId = await this.prisma.category.findMany({
+      where: {
+        name: {
+          in: ['Technology', 'Science', 'Politics', 'Sports'],
+        },
+      },
+      select: {
+        id: true,
+        // name: true,
+      },
+    });
+    this.prisma.user.update({
+      where: {
+        username: userId,
+      },
+      data: {
+        // categoryIDs: {
+        //   set: categoryId.map((category) => category.id),
+        // },
+        categories: {
+          connect: categoryId,
+        },
+      },
+    });
+  }
+
+  async getTags() {
+    return this.prisma.category.findMany({
+      select: {
+        name: true,
       },
     });
   }
