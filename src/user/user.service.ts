@@ -1,6 +1,7 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
+
 import {
   UpdateOnboardingParams,
   UpdateOnboardingGenderParams,
@@ -125,7 +126,7 @@ export class UserService {
     const categoryId = await this.prisma.category.findMany({
       where: {
         name: {
-          in: ['Technology', 'Science', 'Politics', 'Sports'],
+          in: tags,
         },
       },
       select: {
@@ -133,7 +134,7 @@ export class UserService {
         // name: true,
       },
     });
-    this.prisma.user.update({
+    await this.prisma.user.update({
       where: {
         username: userId,
       },
@@ -141,6 +142,7 @@ export class UserService {
         // categoryIDs: {
         //   set: categoryId.map((category) => category.id),
         // },
+
         categories: {
           connect: categoryId,
         },
