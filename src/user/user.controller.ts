@@ -43,9 +43,7 @@ export class UserController {
     @Param('username') username: string,
   ): Promise<UserRespondDto | 'User not found'> {
     const user =
-      (await this.userService.user({
-        username: username,
-      })) || 'User not found';
+      (await this.userService.getUserByuserName(username)) || 'User not found';
     return user;
   }
 

@@ -27,6 +27,7 @@ import { ConfigService } from '@nestjs/config';
 import { EventModule } from './event/event.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { TagModule } from './tag/tag.module';
+import { SearchModule } from './search/search.module';
 const configOptionForRoot = {
   load: [
     envConfigObject,
@@ -75,6 +76,7 @@ const configOptionForRoot = {
     UserModule,
     EventModule,
     TagModule,
+    SearchModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'backend-docs'),
       serveRoot: '/docs',
