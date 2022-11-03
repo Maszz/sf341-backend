@@ -32,14 +32,34 @@ export class UserService {
   }
 
   async getUserByuserName(username: string) {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: {
         username: username,
       },
-      include: {
-        profile: true,
+      select: {
+        username: true,
+        profile: {
+          select: {
+            name: true,
+            surname: true,
+            bio: true,
+          },
+        },
+        categories: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
+
+    const tags = user.categories.map((category) => category.name);
+    return {
+      ...user,
+      categories: tags,
+    };
+
+    return;
   }
 
   async users(params: {

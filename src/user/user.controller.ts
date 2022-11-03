@@ -24,15 +24,15 @@ export class UserController {
     private readonly logger: LoggerService,
   ) {}
 
-  @Get()
-  @ApiOkResponse({
-    description: 'User response',
-    type: [UserRespondDto],
-  })
-  async getAllUsers(): Promise<UserRespondDto[]> {
-    const data = this.userService.users({});
-    return data;
-  }
+  // @Get()
+  // @ApiOkResponse({
+  //   description: 'User response',
+  //   type: [UserRespondDto],
+  // })
+  // async getAllUsers(): Promise<UserRespondDto[]> {
+  //   const data = this.userService.users({});
+  //   return data;
+  // }
 
   @Get(':username')
   @ApiOkResponse({

@@ -14,17 +14,21 @@ export class UserDto {
   @ApiProperty()
   eventsJoined: string[];
 }
+class ProfileRes {
+  @ApiProperty()
+  name: string;
+  @ApiProperty()
+  surname: string;
+  @ApiProperty()
+  bio: string;
+}
 export class UserRespondDto {
   @ApiProperty()
-  id: string;
-  @ApiProperty()
-  createdAt: Date;
-  @ApiProperty()
-  updatedAt: Date;
+  categories: string[];
   @ApiProperty()
   username: string;
   @ApiProperty()
-  email: string;
+  profile: ProfileRes;
   // hashpw: string;
   // hashedRt: string | null;
 }
