@@ -63,7 +63,7 @@ const configOptionForRoot = {
       },
       debug: process.env.NODE_ENV === 'development',
       playground: true,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      autoSchemaFile: join(process.cwd(), './schema.gql'),
       cors: true,
       persistedQueries: false,
       cache: 'bounded',
@@ -77,14 +77,14 @@ const configOptionForRoot = {
     EventModule,
     TagModule,
     SearchModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'backend-docs'),
-      serveRoot: '/docs',
-    }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'api-docs'),
-      serveRoot: '/sf341-docs',
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'backend-docs'),
+    //   serveRoot: '/docs',
+    // }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'api-docs'),
+    //   serveRoot: '/sf341-docs',
+    // }),
   ],
   controllers: [AppController],
   providers: [AppService],

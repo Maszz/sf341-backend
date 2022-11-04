@@ -1,18 +1,43 @@
 version: '3.9'
 services:
-  redis-master:
-    image: 'bitnami/redis:latest'
+  backend:
+    image: sf341backend
+    build:
+        context: .
+        dockerfile: ./Dockerfile
+    env_file:
+        - ./docker-env/.env
+      
     ports:
-      - '6381:6379'
-    environment:
-      - REDIS_REPLICATION_MODE=master
-      - REDIS_PASSWORD=my_master_password
-    volumes:
-      - './.docker-compose/redis-master:/bitnami'
+        - 4032:3333
     networks:
-      - redis-net
+        - redis-net
+        - mongo-network
+      # expose:
+      #   - 3333
+    restart: always
+    depends_on:
+        - redis-master
+        - redis-slave
+        - mongo1
+        - mongo2
+        - mongo3
     deploy:
       replicas: 1
+
+  redis-master:
+      image: 'bitnami/redis:latest'
+      ports:
+        - '6381:6379'
+      environment:
+        - REDIS_REPLICATION_MODE=master
+        - REDIS_PASSWORD=my_master_password
+      volumes:
+        - './.docker-compose/redis-master:/bitnami'
+      networks:
+        - redis-net
+      deploy:
+        replicas: 1
 
   redis-slave:
     image: 'bitnami/redis:latest'
@@ -35,53 +60,55 @@ services:
       - redis-net
     deploy:
       replicas: 3
-
-  mysql-master:
-    image: bitnami/mysql:latest
-    ports:
-      - '5665:3306'
-    # command: --init-file /data/application/init.sql
-    environment:
-      - MYSQL_REPLICATION_MODE=master
-      - MYSQL_REPLICATION_USER=repl_user
-      - MYSQL_REPLICATION_PASSWORD=repl_password
-      # - MYSQL_ROOT_USER=root
-      - MYSQL_ROOT_PASSWORD=my_root_password
-      - MYSQL_DATABASE=sf341
-      - MYSQL_USER=my_user
-      - MYSQL_PASSWORD=my_user_password
+    
+  mongo1:
+    container_name: mongo1
+    image: mongo:latest
     volumes:
-      # - './init.sql:/data/application/init.sql'
-      # - './init.sql:/docker-entrypoint-startdb.d/init.sql'
-      - './.docker-compose/mysql:/bitnami/mysql/data'
-
+      - ./rs-init.sh:/scripts/rs-init.sh
+      - ./init.js:/scripts/init.js
+      - ./.docker-compose/mongo1/:/data/db
     networks:
-      - mysql-net
-
-    deploy:
-      replicas: 1
-
-  mysql-slave:
-    image: 'bitnami/mysql:latest'
+      - mongo-network
     ports:
-      - '3306'
+      - 28000:27017
     depends_on:
-      - mysql-master
-    environment:
-      - MYSQL_REPLICATION_MODE=slave
-      - MYSQL_REPLICATION_USER=repl_user
+      - mongo2
+      - mongo3
+    links:
+      - mongo2
+      - mongo3
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
 
-      - MYSQL_REPLICATION_PASSWORD=repl_password
-      - MYSQL_MASTER_HOST=mysql-master
-      - MYSQL_MASTER_PORT_NUMBER=3306
-      - MYSQL_MASTER_ROOT_PASSWORD=my_root_password
+  mongo2:
+    container_name: mongo2
+    image: mongo:latest
     networks:
-      - mysql-net
-    deploy:
-      replicas: 2
+      - mongo-network
+    ports:
+      - 28001:27017
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
+    volumes:
+      - ./.docker-compose/mongo2/:/data/db
+  mongo3:
+    container_name: mongo3
+    image: mongo:latest
+    networks:
+      - mongo-network
+    ports:
+      - 28002:27017
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
+    volumes:
+      - ./.docker-compose/mongo3/:/data/db
+
+
 
 networks:
   redis-net:
     driver: bridge
-  mysql-net:
+  mongo-network:
     driver: bridge
+

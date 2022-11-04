@@ -15,7 +15,6 @@ import { LoggerService } from '../logger/logger.service';
 import { User, Prisma } from '@prisma/client';
 import { UserUpdateProfileDto } from './dto/user-update-profile.dto';
 import { ApiProperty, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { GetCurrentUser } from 'src/auth/decorators/getCurrentUser.decorator';
 @ApiTags('User')
 @Controller('user')
 export class UserController {

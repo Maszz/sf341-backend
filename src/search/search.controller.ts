@@ -33,6 +33,7 @@ export class SearchController {
       return Promise.resolve(JSON.parse(cache)) as Promise<SearchContent[]>;
     }
     if (term == '') {
+      console.log('empty');
       return Promise.resolve([]);
     }
     const result = await this.service.search(term);
