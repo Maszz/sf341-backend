@@ -13,7 +13,7 @@ services:
         - 4032:3333
     networks:
         - redis-net
-        - mongo-network
+        - mongo-net
       # expose:
       #   - 3333
     restart: always
@@ -27,40 +27,25 @@ services:
       replicas: 1
 
   redis-master:
-      image: 'bitnami/redis:latest'
-      ports:
-        - '6381:6379'
-      environment:
-        - REDIS_REPLICATION_MODE=master
-        - REDIS_PASSWORD=my_master_password
-      volumes:
-        - './.docker-compose/redis-master:/bitnami'
-      networks:
-        - redis-net
-      deploy:
-        replicas: 1
+    image: redis:latest
+    container_name: redis-master
+    ports:
+      - "10000:6379"
+    networks:
+      - redis-net
 
   redis-slave:
-    image: 'bitnami/redis:latest'
-    volumes:
-      - ./.docker-compose/redis-slave:/bitnami/redis/data
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG
-      - REDIS_REPLICATION_MODE=slave
-      - REDIS_MASTER_HOST=redis-master
-      - REDIS_MASTER_PORT_NUMBER=6379
-      - REDIS_MASTER_PASSWORD=my_master_password
-      - REDIS_PASSWORD=my_master_password
+    image: redis:latest
+    # container_name: slave
     ports:
-      - '6379'
+      - "6379"
+    command: redis-server --slaveof redis-master 6379
     depends_on:
       - redis-master
-    # command: /opt/bitnami/scripts/redis/run.sh --maxmemory 100mb --maxmemory-policy allkeys-lru
     networks:
       - redis-net
     deploy:
-      replicas: 3
+      replicas: 2
     
   mongo1:
     container_name: mongo1
@@ -70,7 +55,7 @@ services:
       - ./init.js:/scripts/init.js
       - ./.docker-compose/mongo1/:/data/db
     networks:
-      - mongo-network
+      - mongo-net
     ports:
       - 28000:27017
     depends_on:
@@ -86,7 +71,7 @@ services:
     container_name: mongo2
     image: mongo:latest
     networks:
-      - mongo-network
+      - mongo-net
     ports:
       - 28001:27017
     restart: always
@@ -97,7 +82,7 @@ services:
     container_name: mongo3
     image: mongo:latest
     networks:
-      - mongo-network
+      - mongo-net
     ports:
       - 28002:27017
     restart: always
@@ -110,6 +95,8 @@ services:
 networks:
   redis-net:
     driver: bridge
-  mongo-network:
+  mongo-net:
     driver: bridge
+
+  
 
