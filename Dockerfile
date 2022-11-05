@@ -2,7 +2,7 @@
 # BUILD FOR LOCAL DEVELOPMENT
 ###################
 
-FROM node:lts-alpine 
+FROM node:lts
 
 WORKDIR /usr/src/app
 RUN chmod -R 777 /usr/src/app
@@ -20,6 +20,7 @@ RUN yarn add @prisma/client
 
 RUN npx prisma generate
 RUN yarn build
+RUN chmod 777 /usr/src/app/node_modules/.prisma/client/index.js
 CMD node ./dist/main.js
 
 USER node

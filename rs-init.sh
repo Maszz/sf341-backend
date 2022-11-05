@@ -32,6 +32,5 @@ echo "****** Waiting for ${DELAY} seconds for replicaset configuration to be app
 
 sleep $DELAY
 
-npx prisma db push
 
 
