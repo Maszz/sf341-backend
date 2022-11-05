@@ -29,6 +29,9 @@ EOF
 
 echo "****** Waiting for ${DELAY} seconds for replicaset configuration to be applied ******"
 
+
 sleep $DELAY
+
+npx prisma db push
 
 
