@@ -3,7 +3,9 @@ import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
-
+import { HttpService } from '@nestjs/axios';
+import { AxiosResponse, AxiosError } from 'axios';
+import { Observable, firstValueFrom, catchError } from 'rxjs';
 export interface SearchEventContent {
   content: string;
   type: string;
@@ -45,7 +47,10 @@ export type test =
 
 @Injectable()
 export class SearchService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly httpService: HttpService,
+  ) {}
 
   async search(keyword: string): Promise<SearchContent[]> {
     const events = await this.prisma.event.findMany({
@@ -113,4 +118,161 @@ export class SearchService {
     const result = [...eventsArr, ...userArr] as SearchContent[];
     return result;
   }
+
+  async searchLocation(keyword: string): Promise<
+    {
+      geometry: {
+        lat: number;
+        lng: number;
+      };
+      place: string;
+    }[]
+  > {
+    // const response = this.httpService
+    //   .get(
+    //     `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(
+    //       keyword,
+    //     )}&key=b5161aaa30ec46a082c959c1114fa8a1&language=en&pretty=1`,
+    //   )
+    //   .pipe(
+    //     map((axiosResponse: AxiosResponse) => {
+    //       return axiosResponse.data as LocationResponse;
+    //     }),
+    //   );
+    const { data } = await firstValueFrom(
+      this.httpService
+        .get<LocationResponse>(
+          `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(
+            keyword,
+          )}&key=b5161aaa30ec46a082c959c1114fa8a1&language=en&pretty=1`,
+        )
+        .pipe(
+          catchError((error: AxiosError) => {
+            console.log(error.message);
+            throw 'An error happened!';
+          }),
+        ),
+    );
+    const { results } = data;
+    const formattedResult = results.map((item) => {
+      return {
+        geometry: item.geometry,
+        place: item.formatted,
+        flag: item.annotations.flag,
+      };
+    });
+    return formattedResult;
+  }
+}
+
+export interface LocationResponse {
+  documentation: string;
+  licenses: { name: string; url: string }[];
+  rate: {
+    limit: number;
+    remaining: number;
+    reset: number;
+  };
+  results: {
+    annotations: {
+      DMS: {
+        lat: string;
+        lng: string;
+      };
+      MGRS: string;
+      Maidenhead: string;
+      Mercator: {
+        x: number;
+        y: number;
+      };
+      OSM: {
+        edit_url: string;
+        note_url: string;
+        url: string;
+      };
+      UN_M49: any;
+      callingcode: number;
+      currency: {
+        alternate_symbols: any[];
+        decimal_mark: string;
+        html_entity: string;
+        iso_code: string;
+        iso_numeric: string;
+        name: string;
+        smallest_denomination: number;
+        subunit: string;
+        subunit_to_unit: number;
+        symbol: string;
+        symbol_first: number;
+        thousands_separator: number;
+      };
+      flag: string;
+      geohash: string;
+      qibla: number;
+      roadinfo: {
+        drive_on: string;
+        road: string;
+        speed_in: string;
+      };
+      sun: {
+        rise: {
+          apparent: number;
+          astronomical: number;
+          civil: number;
+          nautical: number;
+        };
+        set: {
+          apparent: number;
+          astronomical: number;
+          civil: number;
+          nautical: number;
+        };
+      };
+      timezone: {
+        name: string;
+        now_in_dst: number;
+        offset_sec: number;
+        offset_string: string;
+        short_name: string;
+      };
+      what3words: {
+        words: string;
+      };
+      wikidata: string;
+    };
+    bounds: {
+      northeast: {
+        lat: number;
+        lng: number;
+      };
+      southwest: {
+        lat: number;
+        lng: number;
+      };
+    };
+    components: {
+      'ISO_3166-1_alpha-2': string;
+      'ISO_3166-1_alpha-3': string;
+      'ISO_3166-2': string[];
+      _category: string;
+      _type: string;
+      city: string;
+      continent: string;
+      country: string;
+      country_code: string;
+      neighbourhood: string;
+      postcode: string;
+      quarter: string;
+      road: string;
+      shop: string;
+      state: string;
+      suburb: string;
+    };
+    confidence: 9;
+    formatted: string;
+    geometry: {
+      lat: number;
+      lng: number;
+    };
+  }[];
 }

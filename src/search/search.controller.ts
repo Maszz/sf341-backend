@@ -2,6 +2,12 @@ import { Controller, Get, Param, Post, Req, Res, Query } from '@nestjs/common';
 import { SearchService } from './search.service';
 import { RedisService } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
+import { HttpService } from '@nestjs/axios';
+import { AxiosResponse } from 'axios';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+import { urlencoded } from 'express';
 export type SearchContent = {
   content: string;
   type: string;
@@ -38,6 +44,48 @@ export class SearchController {
     }
     const result = await this.service.search(term);
     this.redis.set(`search?${term}`, JSON.stringify(result), 'EX', 10);
+    return result;
+  }
+
+  @Get('location')
+  async searchLocation(
+    // @Param() param: { keyword: string },
+    @Query('term') term: string,
+  ): Promise<
+    {
+      geometry: {
+        lat: number;
+        lng: number;
+      };
+      place: string;
+    }[]
+  > {
+    const cache = await this.redis.get(`searchLocation?${term}`);
+    if (cache) {
+      console.log('cache');
+      return Promise.resolve(JSON.parse(cache)) as Promise<
+        {
+          geometry: {
+            lat: number;
+            lng: number;
+          };
+          place: string;
+        }[]
+      >;
+    }
+    if (term == '') {
+      console.log('empty');
+      return Promise.resolve([]);
+    }
+    // console.log(encodeURIComponent(term));
+    const result = await this.service.searchLocation(term);
+
+    this.redis.set(
+      `searchLocation?${term}`,
+      JSON.stringify(result),
+      'EX',
+      3600,
+    );
     return result;
   }
 }
