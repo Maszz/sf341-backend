@@ -17,6 +17,15 @@ export type SearchContent = {
   name?: string;
   bio?: string;
 };
+
+export type SearchLocationDto = {
+  geometry: {
+    lat: number;
+    lng: number;
+  };
+  place: string;
+};
+
 @Controller('search')
 export class SearchController {
   private readonly redis: Redis;
@@ -51,15 +60,7 @@ export class SearchController {
   async searchLocation(
     // @Param() param: { keyword: string },
     @Query('term') term: string,
-  ): Promise<
-    {
-      geometry: {
-        lat: number;
-        lng: number;
-      };
-      place: string;
-    }[]
-  > {
+  ): Promise<SearchLocationDto[]> {
     const cache = await this.redis.get(`searchLocation?${term}`);
     if (cache) {
       console.log('cache');
