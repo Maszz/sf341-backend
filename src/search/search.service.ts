@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { HttpService } from '@nestjs/axios';
 import { AxiosResponse, AxiosError } from 'axios';
 import { Observable, firstValueFrom, catchError } from 'rxjs';
+import { LocationResponse } from './search.type';
 export interface SearchEventContent {
   content: string;
   type: string;
@@ -74,8 +75,8 @@ export class SearchService {
       },
       select: {
         name: true,
-        date: true,
-        location: true,
+        startDate: true,
+        locationName: true,
         id: true,
       },
     });
@@ -84,8 +85,8 @@ export class SearchService {
         content: event.name,
         type: 'event',
         id: event.id,
-        date: event.date,
-        location: event.location,
+        date: event.startDate,
+        location: event.locationName,
       };
     });
     const user = await this.prisma.user.findMany({
@@ -139,6 +140,7 @@ export class SearchService {
     //       return axiosResponse.data as LocationResponse;
     //     }),
     //   );
+
     const { data } = await firstValueFrom(
       this.httpService
         .get<LocationResponse>(
@@ -165,114 +167,114 @@ export class SearchService {
   }
 }
 
-export interface LocationResponse {
-  documentation: string;
-  licenses: { name: string; url: string }[];
-  rate: {
-    limit: number;
-    remaining: number;
-    reset: number;
-  };
-  results: {
-    annotations: {
-      DMS: {
-        lat: string;
-        lng: string;
-      };
-      MGRS: string;
-      Maidenhead: string;
-      Mercator: {
-        x: number;
-        y: number;
-      };
-      OSM: {
-        edit_url: string;
-        note_url: string;
-        url: string;
-      };
-      UN_M49: any;
-      callingcode: number;
-      currency: {
-        alternate_symbols: any[];
-        decimal_mark: string;
-        html_entity: string;
-        iso_code: string;
-        iso_numeric: string;
-        name: string;
-        smallest_denomination: number;
-        subunit: string;
-        subunit_to_unit: number;
-        symbol: string;
-        symbol_first: number;
-        thousands_separator: number;
-      };
-      flag: string;
-      geohash: string;
-      qibla: number;
-      roadinfo: {
-        drive_on: string;
-        road: string;
-        speed_in: string;
-      };
-      sun: {
-        rise: {
-          apparent: number;
-          astronomical: number;
-          civil: number;
-          nautical: number;
-        };
-        set: {
-          apparent: number;
-          astronomical: number;
-          civil: number;
-          nautical: number;
-        };
-      };
-      timezone: {
-        name: string;
-        now_in_dst: number;
-        offset_sec: number;
-        offset_string: string;
-        short_name: string;
-      };
-      what3words: {
-        words: string;
-      };
-      wikidata: string;
-    };
-    bounds: {
-      northeast: {
-        lat: number;
-        lng: number;
-      };
-      southwest: {
-        lat: number;
-        lng: number;
-      };
-    };
-    components: {
-      'ISO_3166-1_alpha-2': string;
-      'ISO_3166-1_alpha-3': string;
-      'ISO_3166-2': string[];
-      _category: string;
-      _type: string;
-      city: string;
-      continent: string;
-      country: string;
-      country_code: string;
-      neighbourhood: string;
-      postcode: string;
-      quarter: string;
-      road: string;
-      shop: string;
-      state: string;
-      suburb: string;
-    };
-    confidence: 9;
-    formatted: string;
-    geometry: {
-      lat: number;
-      lng: number;
-    };
-  }[];
-}
+// export interface LocationResponse {
+//   documentation: string;
+//   licenses: { name: string; url: string }[];
+//   rate: {
+//     limit: number;
+//     remaining: number;
+//     reset: number;
+//   };
+//   results: {
+//     annotations: {
+//       DMS: {
+//         lat: string;
+//         lng: string;
+//       };
+//       MGRS: string;
+//       Maidenhead: string;
+//       Mercator: {
+//         x: number;
+//         y: number;
+//       };
+//       OSM: {
+//         edit_url: string;
+//         note_url: string;
+//         url: string;
+//       };
+//       UN_M49: any;
+//       callingcode: number;
+//       currency: {
+//         alternate_symbols: any[];
+//         decimal_mark: string;
+//         html_entity: string;
+//         iso_code: string;
+//         iso_numeric: string;
+//         name: string;
+//         smallest_denomination: number;
+//         subunit: string;
+//         subunit_to_unit: number;
+//         symbol: string;
+//         symbol_first: number;
+//         thousands_separator: number;
+//       };
+//       flag: string;
+//       geohash: string;
+//       qibla: number;
+//       roadinfo: {
+//         drive_on: string;
+//         road: string;
+//         speed_in: string;
+//       };
+//       sun: {
+//         rise: {
+//           apparent: number;
+//           astronomical: number;
+//           civil: number;
+//           nautical: number;
+//         };
+//         set: {
+//           apparent: number;
+//           astronomical: number;
+//           civil: number;
+//           nautical: number;
+//         };
+//       };
+//       timezone: {
+//         name: string;
+//         now_in_dst: number;
+//         offset_sec: number;
+//         offset_string: string;
+//         short_name: string;
+//       };
+//       what3words: {
+//         words: string;
+//       };
+//       wikidata: string;
+//     };
+//     bounds: {
+//       northeast: {
+//         lat: number;
+//         lng: number;
+//       };
+//       southwest: {
+//         lat: number;
+//         lng: number;
+//       };
+//     };
+//     components: {
+//       'ISO_3166-1_alpha-2': string;
+//       'ISO_3166-1_alpha-3': string;
+//       'ISO_3166-2': string[];
+//       _category: string;
+//       _type: string;
+//       city: string;
+//       continent: string;
+//       country: string;
+//       country_code: string;
+//       neighbourhood: string;
+//       postcode: string;
+//       quarter: string;
+//       road: string;
+//       shop: string;
+//       state: string;
+//       suburb: string;
+//     };
+//     confidence: 9;
+//     formatted: string;
+//     geometry: {
+//       lat: number;
+//       lng: number;
+//     };
+//   }[];
+// }

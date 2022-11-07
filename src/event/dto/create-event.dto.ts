@@ -1,15 +1,32 @@
 import { ApiProperty, ApiOkResponse } from '@nestjs/swagger';
 import { Event, EventChat, User } from '@prisma/client';
 import { UserDto } from '../../user/dto/user.dto';
+import { Region, LatLng, MemberType } from '@prisma/client';
 export class CreateEventDto {
   @ApiProperty()
   eventName: string;
   @ApiProperty()
-  description: string;
+  eventDescription: string;
   @ApiProperty()
-  location: string;
+  startDateTime: string;
   @ApiProperty()
-  date: string;
+  endDateTime: string;
+  @ApiProperty()
+  memberType: MemberType;
+  @ApiProperty()
+  memberLimit: number;
+  @ApiProperty()
+  isPublic: boolean;
+  @ApiProperty()
+  eventColors: string[];
+  @ApiProperty()
+  location: Region;
+  @ApiProperty()
+  locationName: string;
+  @ApiProperty()
+  locationDescription: string;
+  @ApiProperty()
+  locationMarker: LatLng;
   @ApiProperty()
   creatorUsername: string;
 }

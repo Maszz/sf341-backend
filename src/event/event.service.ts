@@ -1,11 +1,27 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Log, Prisma, Event, EventChat } from '@prisma/client';
+import {
+  Log,
+  Prisma,
+  Event,
+  EventChat,
+  Region,
+  LatLng,
+  MemberType,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 interface ICreateEventArgs {
-  name: string;
-  description: string;
-  location: string;
-  date: Date;
+  eventName: string;
+  eventDescription: string;
+  startDateTime: string;
+  endDateTime: string;
+  memberType: MemberType;
+  memberLimit: number;
+  isPublic: boolean;
+  eventColors: string[];
+  location: Region;
+  locationName: string;
+  locationDescription: string;
+  locationMarker: LatLng;
   creatorUsername: string;
 }
 interface IAddParticipantArgs {
@@ -25,10 +41,22 @@ export class EventService {
     this.logger.log('createEvent()');
     const event = await this.prisma.event.create({
       data: {
-        name: data.name,
-        description: data.description,
-        date: data.date,
+        name: data.eventName,
+        description: data.eventDescription,
+        startDate: data.startDateTime,
+        endDate: data.endDateTime,
         location: data.location,
+        locationName: data.locationName,
+        locationMarker: data.locationMarker,
+        memberType: data.memberType,
+        memberLimit: data.memberLimit,
+        isPublic: data.isPublic,
+
+        eventColors: {
+          c1: data.eventColors[0],
+          c2: data.eventColors[1],
+        },
+        locationDetails: data.locationDescription,
         creator: {
           connectOrCreate: {
             where: {

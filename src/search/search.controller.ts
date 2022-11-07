@@ -64,29 +64,16 @@ export class SearchController {
     const cache = await this.redis.get(`searchLocation?${term}`);
     if (cache) {
       console.log('cache');
-      return Promise.resolve(JSON.parse(cache)) as Promise<
-        {
-          geometry: {
-            lat: number;
-            lng: number;
-          };
-          place: string;
-        }[]
-      >;
+      return Promise.resolve(JSON.parse(cache)) as Promise<SearchLocationDto[]>;
     }
-    if (term == '') {
+    if (term == '' || term.length < 2) {
       console.log('empty');
       return Promise.resolve([]);
     }
     // console.log(encodeURIComponent(term));
     const result = await this.service.searchLocation(term);
 
-    this.redis.set(
-      `searchLocation?${term}`,
-      JSON.stringify(result),
-      'EX',
-      3600,
-    );
+    this.redis.set(`searchLocation?${term}`, JSON.stringify(result));
     return result;
   }
 }

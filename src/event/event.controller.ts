@@ -36,45 +36,44 @@ export class EventController {
   async createEvent(
     @Body() createEventParam: CreateEventDto,
   ): Promise<CreateEventResponseDto> {
-    const date = new Date(createEventParam.date);
-    const args = {
-      name: createEventParam.eventName,
-      description: createEventParam.description,
-      location: createEventParam.location,
-      date: new Date(Date.now()),
-      creatorUsername: createEventParam.creatorUsername,
-    };
-    return this.eventService.createEvent(args);
+    // const args = {
+    //   name: createEventParam.eventName,
+    //   description: createEventParam.description,
+    //   location: createEventParam.location,
+    //   date: new Date(Date.now()),
+    //   creatorUsername: createEventParam.creatorUsername,
+    // };
+    return this.eventService.createEvent(createEventParam);
   }
 
-  @Post('/addParticipant')
-  @ApiOkResponse({
-    description: 'The event records by id.',
-    type: EventDto,
-  })
-  @HttpCode(200)
-  async addParticipant(@Body() args: AddParticipantDto): Promise<EventDto> {
-    return this.eventService.addPaticipantToEvent(args);
-  }
+  // @Post('/addParticipant')
+  // @ApiOkResponse({
+  //   description: 'The event records by id.',
+  //   type: EventDto,
+  // })
+  // @HttpCode(200)
+  // async addParticipant(@Body() args: AddParticipantDto): Promise<EventDto> {
+  //   return this.eventService.addPaticipantToEvent(args);
+  // }
 
-  @Post('/removeParticipant')
-  @ApiOkResponse({
-    description: 'The event records by id.',
-    type: EventDto,
-  })
-  @HttpCode(200)
-  async removeParticipant(
-    @Body() args: RemoveParticipantDto,
-  ): Promise<EventDto> {
-    return this.eventService.removePaticipantToEvent(args);
-  }
+  // @Post('/removeParticipant')
+  // @ApiOkResponse({
+  //   description: 'The event records by id.',
+  //   type: EventDto,
+  // })
+  // @HttpCode(200)
+  // async removeParticipant(
+  //   @Body() args: RemoveParticipantDto,
+  // ): Promise<EventDto> {
+  //   return this.eventService.removePaticipantToEvent(args);
+  // }
 
-  @ApiOkResponse({
-    description: 'The event records by id.',
-    type: GetEventByIdDto,
-  })
-  @Get('/getEvent/:eventId')
-  async getEvent(@Param('eventId') eventId: string): Promise<GetEventByIdDto> {
-    return this.eventService.getEventById(eventId);
-  }
+  // @ApiOkResponse({
+  //   description: 'The event records by id.',
+  //   type: GetEventByIdDto,
+  // })
+  // @Get('/getEvent/:eventId')
+  // async getEvent(@Param('eventId') eventId: string): Promise<GetEventByIdDto> {
+  //   return this.eventService.getEventById(eventId);
+  // }
 }
