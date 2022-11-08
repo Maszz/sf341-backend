@@ -43,6 +43,8 @@ export class TokenDto {
 export class TokenDtoWithUserId extends TokenDto {
   @ApiProperty()
   userId: string;
+  @ApiProperty()
+  id: string;
 }
 
 export class UserFromJwtDto {

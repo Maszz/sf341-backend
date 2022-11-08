@@ -50,19 +50,29 @@ export class EventController {
   async getEventList(
     @Query('offset') offset: string,
     @Query('limit') limit: string,
+    @Query('u') username: string,
   ): Promise<any> {
-    return this.eventService.getEventList(parseInt(offset), parseInt(limit));
+    return this.eventService.getEventList(
+      parseInt(offset),
+      parseInt(limit),
+      username,
+    );
   }
 
-  // @Post('/addParticipant')
-  // @ApiOkResponse({
-  //   description: 'The event records by id.',
-  //   type: EventDto,
-  // })
-  // @HttpCode(200)
-  // async addParticipant(@Body() args: AddParticipantDto): Promise<EventDto> {
-  //   return this.eventService.addPaticipantToEvent(args);
-  // }
+  @Get('/getEventById')
+  async getEventById(@Query('id') id: string): Promise<any> {
+    return this.eventService.getEventByIdForCardDisplay(id);
+  }
+
+  @Post('/addParticipant')
+  @ApiOkResponse({
+    description: 'The event records by id.',
+    type: EventDto,
+  })
+  @HttpCode(200)
+  async addParticipant(@Body() args: AddParticipantDto): Promise<any> {
+    return this.eventService.addPaticipantToEvent(args);
+  }
 
   // @Post('/removeParticipant')
   // @ApiOkResponse({

@@ -30,7 +30,7 @@ export class AuthService {
     this.rtPrivateKey = this.configService.get<string>('jwtKey.rt_privateKey');
   }
 
-  async signUpLocal(authDto: SignUpDto): Promise<TokenDto> {
+  async signUpLocal(authDto: SignUpDto): Promise<TokenDto & { id: string }> {
     const hash = await this.hashData(authDto.password);
 
     const newUser = await this.prisma.user
@@ -91,11 +91,11 @@ export class AuthService {
       devId: session[0].id,
     });
 
-    return tokens;
+    return { ...tokens, id: newUser.id };
   }
   async signinLocal(
     dto: SignInRequestDto,
-  ): Promise<TokenDto & { onboarding: boolean }> {
+  ): Promise<TokenDto & { onboarding: boolean; id: string }> {
     const user = await this.prisma.user.findUnique({
       where: { username: dto.username },
       include: {
@@ -172,7 +172,7 @@ export class AuthService {
       devId: session,
     });
 
-    return { ...tokens, onboarding: user.onboarding };
+    return { ...tokens, onboarding: user.onboarding, id: user.id };
   }
   /**
    * Multi device support

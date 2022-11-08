@@ -83,11 +83,10 @@ export class AuthController {
       manufacturer,
       platform,
     };
-    const { access_token, refresh_token } = await this.authService.signUpLocal(
-      validatedDto,
-    );
+    const { access_token, refresh_token, id } =
+      await this.authService.signUpLocal(validatedDto);
 
-    return { userId: req.username, access_token, refresh_token };
+    return { userId: req.username, access_token, refresh_token, id: id };
   }
 
   @Post('/signin')
@@ -109,12 +108,18 @@ export class AuthController {
     };
     // console.log(validatedDto);
     const response = this.authService.signinLocal(validatedDto);
-    const { access_token, refresh_token, onboarding } = await response;
+    const { access_token, refresh_token, onboarding, id } = await response;
     // console.log(rawReq.csrfToken());
     // useAccesTokenCookie(access_token);
     // useRefreshTokenCookie(refresh_token);
 
-    return { userId: req.username, access_token, refresh_token, onboarding };
+    return {
+      userId: req.username,
+      access_token,
+      refresh_token,
+      onboarding,
+      id: id,
+    };
   }
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

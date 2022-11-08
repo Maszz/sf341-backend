@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import {
   Log,
   Prisma,
@@ -85,7 +85,27 @@ export class EventService {
   async addPaticipantToEvent(data: IAddParticipantArgs) {
     // TODO
     const { eventId, username } = data;
+    console.log(data);
 
+    const creator = await this.prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      select: {
+        creator: true,
+        participants: true,
+      },
+    });
+    if (creator.creator.username === username) {
+      console.log('case1');
+      throw new ForbiddenException('creator cannot join event');
+    }
+
+    if (creator.participants.some((p) => p.username === username)) {
+      console.log('case2');
+      throw new ForbiddenException('You are already a participant');
+      return;
+    }
     const paticipan = await this.prisma.event.update({
       where: {
         id: eventId,
@@ -93,7 +113,7 @@ export class EventService {
       data: {
         participants: {
           connect: {
-            id: username,
+            username: username,
           },
         },
       },
@@ -120,24 +140,27 @@ export class EventService {
     return paticipan;
   }
 
-  async getEventById(eventId: string) {
+  async getEventByIdForCardDisplay(eventId: string) {
     return await this.prisma.event.findUnique({
       where: {
         id: eventId,
       },
-      include: {
-        creator: true,
-        participants: true,
-        eventChat: true,
-      },
     });
   }
 
-  async getEventList(offset: number, limit: number) {
+  async getEventList(offset: number, limit: number, username: string) {
     return await this.prisma.event.findMany({
       skip: offset,
       take: limit,
+      where: {
+        NOT: {
+          creator: {
+            username: username,
+          },
+        },
+      },
       select: {
+        id: true,
         name: true,
         description: true,
         startDate: true,
