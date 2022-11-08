@@ -38,7 +38,7 @@ export class EventService {
   async createEvent(
     data: ICreateEventArgs,
   ): Promise<{ event: Event; eventChat: EventChat }> {
-    this.logger.log('createEvent()');
+    // this.logger.log('createEvent()');
     const event = await this.prisma.event.create({
       data: {
         name: data.eventName,
@@ -129,6 +129,19 @@ export class EventService {
         creator: true,
         participants: true,
         eventChat: true,
+      },
+    });
+  }
+
+  async getEventList(offset: number, limit: number) {
+    return await this.prisma.event.findMany({
+      skip: offset,
+      take: limit,
+      select: {
+        name: true,
+        description: true,
+        startDate: true,
+        eventColors: true,
       },
     });
   }

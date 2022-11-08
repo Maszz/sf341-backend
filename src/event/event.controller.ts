@@ -10,6 +10,7 @@ import {
   Res,
   HttpCode,
   Param,
+  Query,
 } from '@nestjs/common';
 import { ApiProperty, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
@@ -44,6 +45,13 @@ export class EventController {
     //   creatorUsername: createEventParam.creatorUsername,
     // };
     return this.eventService.createEvent(createEventParam);
+  }
+  @Get('/getEventList')
+  async getEventList(
+    @Query('offset') offset: string,
+    @Query('limit') limit: string,
+  ): Promise<any> {
+    return this.eventService.getEventList(parseInt(offset), parseInt(limit));
   }
 
   // @Post('/addParticipant')
