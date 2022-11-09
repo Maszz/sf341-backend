@@ -40,7 +40,7 @@ export class AuthService {
           email: authDto.email,
           profile: {
             create: {
-              name: authDto.name,
+              realName: authDto.realName,
             },
           },
           userSecret: {

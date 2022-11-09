@@ -101,7 +101,7 @@ export class SearchService {
         id: true,
         profile: {
           select: {
-            name: true,
+            displayName: true,
             bio: true,
           },
         },
@@ -112,7 +112,7 @@ export class SearchService {
         content: user.username,
         type: 'user',
         id: user.id,
-        name: user.profile?.name || '',
+        name: user.profile?.displayName || '',
         bio: user.profile?.bio || '',
       };
     });

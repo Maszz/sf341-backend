@@ -7,12 +7,12 @@ import {
   UpdateOnboardingGenderParams,
 } from './user.controller';
 interface IUpdateProfileParamsArgs {
-  updateParams: {
-    name?: string;
-    surname?: string;
+  profile: {
     bio?: string;
+    displayName?: string;
   };
   username: string;
+  cUsername: string;
 }
 @Injectable()
 export class UserService {
@@ -36,13 +36,14 @@ export class UserService {
       where: {
         username: username,
       },
+
       select: {
         username: true,
         profile: {
           select: {
-            name: true,
-            surname: true,
+            realName: true,
             bio: true,
+            displayName: true,
           },
         },
         categories: {
@@ -106,17 +107,50 @@ export class UserService {
   }
 
   async updateProfile(args: IUpdateProfileParamsArgs) {
-    const { username, updateParams } = args;
-    return this.prisma.user.update({
+    const { username, profile: userProfile, cUsername } = args;
+    if (cUsername !== username) {
+      const user = await this.prisma.user
+        .update({
+          where: {
+            username: cUsername,
+          },
+          data: {
+            username: username,
+          },
+        })
+        .catch((error) => {
+          console.log(error);
+          if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === 'P2002') {
+              throw new ForbiddenException('this username is already taken');
+            }
+          }
+          throw error;
+        });
+      const profile = await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          profile: {
+            update: userProfile,
+          },
+        },
+      });
+      return { profile, updateUsername: true };
+    }
+    const profile = await this.prisma.user.update({
       where: {
         username: username,
       },
       data: {
         profile: {
-          update: updateParams,
+          update: userProfile,
         },
       },
     });
+
+    return { profile, updateUsername: false };
   }
 
   async UpdateOnboarding(args: UpdateOnboardingParams) {

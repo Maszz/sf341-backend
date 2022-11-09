@@ -16,11 +16,11 @@ export class UserDto {
 }
 class ProfileRes {
   @ApiProperty()
-  name: string;
-  @ApiProperty()
-  surname: string;
+  realName: string;
   @ApiProperty()
   bio: string;
+  @ApiProperty()
+  displayName: string;
 }
 export class UserRespondDto {
   @ApiProperty()

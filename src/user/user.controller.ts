@@ -52,15 +52,12 @@ export class UserController {
     type: UserDto,
   })
   @HttpCode(200)
-  async updateUserProfile(
-    @Body() args: UserUpdateProfileDto,
-  ): Promise<UserDto> {
+  async updateUserProfile(@Body() args: UserUpdateProfileDto): Promise<{
+    profile: User;
+    updateUsername: boolean;
+  }> {
     // TODO
-    const { username, ...params } = args;
-    const user = await this.userService.updateProfile({
-      username: username,
-      updateParams: params,
-    });
+    const user = await this.userService.updateProfile(args);
     return user;
   }
 

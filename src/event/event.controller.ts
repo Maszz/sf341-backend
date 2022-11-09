@@ -58,6 +58,18 @@ export class EventController {
       username,
     );
   }
+  @Get('/getEventUserList')
+  async getEventUserList(
+    @Query('offset') offset: string,
+    @Query('limit') limit: string,
+    @Query('u') username: string,
+  ): Promise<any> {
+    return this.eventService.getEventListForUser(
+      parseInt(offset),
+      parseInt(limit),
+      username,
+    );
+  }
 
   @Get('/getEventById')
   async getEventById(@Query('id') id: string): Promise<any> {

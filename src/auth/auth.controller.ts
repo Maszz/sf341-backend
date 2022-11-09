@@ -67,7 +67,7 @@ export class AuthController {
   async register(@Body() req: SignUpDto): Promise<TokenDtoWithUserId> {
     const {
       username,
-      name,
+      realName,
       email,
       password,
       deviceId,
@@ -76,7 +76,7 @@ export class AuthController {
     } = req;
     const validatedDto = {
       username,
-      name,
+      realName,
       email,
       password,
       deviceId,

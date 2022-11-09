@@ -58,14 +58,8 @@ export class EventService {
         },
         locationDetails: data.locationDescription,
         creator: {
-          connectOrCreate: {
-            where: {
-              username: data.creatorUsername,
-            },
-            create: {
-              username: data.creatorUsername,
-              email: data.creatorUsername,
-            },
+          connect: {
+            username: data.creatorUsername,
           },
         },
       },
@@ -153,11 +147,49 @@ export class EventService {
       skip: offset,
       take: limit,
       where: {
-        NOT: {
-          creator: {
-            username: username,
+        NOT: [
+          {
+            creator: {
+              username: username,
+            },
           },
-        },
+          {
+            participants: {
+              some: {
+                username: username,
+              },
+            },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        startDate: true,
+        eventColors: true,
+      },
+    });
+  }
+  async getEventListForUser(offset: number, limit: number, username: string) {
+    return await this.prisma.event.findMany({
+      skip: offset,
+      take: limit,
+      where: {
+        OR: [
+          {
+            creator: {
+              username: username,
+            },
+          },
+          {
+            participants: {
+              some: {
+                username: username,
+              },
+            },
+          },
+        ],
       },
       select: {
         id: true,

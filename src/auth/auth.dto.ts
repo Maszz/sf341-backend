@@ -13,7 +13,7 @@ export class SignUpDto {
   email: string;
   @ApiProperty()
   @IsNotEmpty()
-  name: string;
+  realName: string;
   @ApiProperty()
   deviceId: string;
   @ApiProperty()
