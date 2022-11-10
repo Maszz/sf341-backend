@@ -10,8 +10,10 @@ interface IUpdateProfileParamsArgs {
   profile: {
     bio?: string;
     displayName?: string;
+    isProfilePublic?: boolean;
   };
-  tags: string[];
+  newTags: string[];
+  removeTags: string[];
   username: string;
   cUsername: string;
 }
@@ -45,6 +47,7 @@ export class UserService {
             realName: true,
             bio: true,
             displayName: true,
+            isProfilePublic: true,
           },
         },
         categories: {
@@ -108,10 +111,20 @@ export class UserService {
   }
 
   async updateProfile(args: IUpdateProfileParamsArgs) {
-    const { username, profile: userProfile, cUsername, tags } = args;
-    const formatedTags = tags.map((tag) => {
+    const {
+      username,
+      profile: userProfile,
+      cUsername,
+      newTags,
+      removeTags,
+    } = args;
+    const formatedCreateOrContectTags = newTags.map((tag) => {
       return { where: { name: tag }, create: { name: tag } };
     });
+    const formatedDisconnectedTags = removeTags.map((tag) => {
+      return { name: tag };
+    });
+
     if (cUsername !== username) {
       const user = await this.prisma.user
         .update({
@@ -141,7 +154,8 @@ export class UserService {
             update: userProfile,
           },
           categories: {
-            connectOrCreate: formatedTags,
+            connectOrCreate: formatedCreateOrContectTags,
+            disconnect: formatedDisconnectedTags,
           },
         },
       });
@@ -156,7 +170,8 @@ export class UserService {
           update: userProfile,
         },
         categories: {
-          connectOrCreate: formatedTags,
+          connectOrCreate: formatedCreateOrContectTags,
+          disconnect: formatedDisconnectedTags,
         },
       },
     });

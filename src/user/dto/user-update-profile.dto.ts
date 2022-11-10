@@ -6,6 +6,8 @@ export class UserUpdateProfileDto {
   profile: {
     bio?: string;
     displayName?: string;
+    isProfilePublic?: boolean;
   };
-  tags: string[];
+  newTags: string[];
+  removeTags: string[];
 }
