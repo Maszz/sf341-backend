@@ -53,20 +53,32 @@ export class TagService {
     }
   }
 
-  async addTag(tag: string) {
-    try {
-      const tags = this.prisma.category.create({
-        data: {
-          name: tag,
-        },
-      });
-      console.log(tags);
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === 'P2002') {
-          throw new ForbiddenException('already have this tag');
-        }
-      }
-    }
-  }
+  // async addTag(tag: string) {
+  //   try {
+  //     const tags= await this.prisma.user.update({
+  //       where: { id: 1 },
+  //       data: {
+  //         categories:{
+  //           connectOrCreate:[
+  //             {
+  //               where:{name:tag},
+  //               create:{name:tag},
+  //           }
+  //           ]
+  //       }
+  //     }})
+  //   const tags = this.prisma.category.create({
+  //     data: {
+  //       name: tag,
+  //     },
+  //   });
+  //   console.log(tags);
+  // } catch (e) {
+  //   if (e instanceof Prisma.PrismaClientKnownRequestError) {
+  //     if (e.code === 'P2002') {
+  //       throw new ForbiddenException('already have this tag');
+  //     }
+  //   }
+  // }
+  // }
 }

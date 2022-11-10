@@ -7,4 +7,5 @@ export class UserUpdateProfileDto {
     bio?: string;
     displayName?: string;
   };
+  tags: string[];
 }

@@ -11,6 +11,7 @@ interface IUpdateProfileParamsArgs {
     bio?: string;
     displayName?: string;
   };
+  tags: string[];
   username: string;
   cUsername: string;
 }
@@ -107,7 +108,10 @@ export class UserService {
   }
 
   async updateProfile(args: IUpdateProfileParamsArgs) {
-    const { username, profile: userProfile, cUsername } = args;
+    const { username, profile: userProfile, cUsername, tags } = args;
+    const formatedTags = tags.map((tag) => {
+      return { where: { name: tag }, create: { name: tag } };
+    });
     if (cUsername !== username) {
       const user = await this.prisma.user
         .update({
@@ -127,6 +131,7 @@ export class UserService {
           }
           throw error;
         });
+
       const profile = await this.prisma.user.update({
         where: {
           id: user.id,
@@ -134,6 +139,9 @@ export class UserService {
         data: {
           profile: {
             update: userProfile,
+          },
+          categories: {
+            connectOrCreate: formatedTags,
           },
         },
       });
@@ -146,6 +154,9 @@ export class UserService {
       data: {
         profile: {
           update: userProfile,
+        },
+        categories: {
+          connectOrCreate: formatedTags,
         },
       },
     });
