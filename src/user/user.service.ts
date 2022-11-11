@@ -124,6 +124,8 @@ export class UserService {
     const formatedDisconnectedTags = removeTags.map((tag) => {
       return { name: tag };
     });
+    console.log(userProfile);
+    console.log(username);
 
     if (cUsername !== username) {
       const user = await this.prisma.user

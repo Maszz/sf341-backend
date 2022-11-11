@@ -51,12 +51,30 @@ export class EventController {
     @Query('offset') offset: string,
     @Query('limit') limit: string,
     @Query('u') username: string,
+    @Query('t') type: string,
   ): Promise<any> {
-    return this.eventService.getEventList(
-      parseInt(offset),
-      parseInt(limit),
-      username,
-    );
+    if (type === 'home') {
+      return this.eventService.getEventList(
+        parseInt(offset),
+        parseInt(limit),
+        username,
+      );
+    }
+    if (type === 'created') {
+      return this.eventService.getEventListForUserCreated(
+        parseInt(offset),
+        parseInt(limit),
+        username,
+      );
+    }
+    if (type === 'joined') {
+      return this.eventService.getEventListForUserJoined(
+        parseInt(offset),
+        parseInt(limit),
+        username,
+      );
+    }
+    return { e: 'error' };
   }
   @Get('/getEventUserList')
   async getEventUserList(
