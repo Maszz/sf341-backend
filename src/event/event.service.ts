@@ -184,25 +184,47 @@ export class EventService {
       },
     });
   }
-  async getEventListForUser(offset: number, limit: number, username: string) {
+  async getEventListForUserCreated(
+    offset: number,
+    limit: number,
+    username: string,
+  ) {
     return await this.prisma.event.findMany({
       skip: offset,
       take: limit,
       where: {
-        OR: [
-          {
-            creator: {
-              username: username,
-            },
+        creator: {
+          username: username,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        startDate: true,
+        eventColors: true,
+        eventChat: {
+          select: {
+            id: true,
           },
-          {
-            participants: {
-              some: {
-                username: username,
-              },
-            },
+        },
+      },
+    });
+  }
+  async getEventListForUserJoined(
+    offset: number,
+    limit: number,
+    username: string,
+  ) {
+    return await this.prisma.event.findMany({
+      skip: offset,
+      take: limit,
+      where: {
+        participants: {
+          some: {
+            username: username,
           },
-        ],
+        },
       },
       select: {
         id: true,
