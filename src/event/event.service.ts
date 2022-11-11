@@ -139,6 +139,13 @@ export class EventService {
       where: {
         id: eventId,
       },
+      include: {
+        eventChat: {
+          select: {
+            id: true,
+          },
+        },
+      },
     });
   }
 
@@ -168,6 +175,12 @@ export class EventService {
         description: true,
         startDate: true,
         eventColors: true,
+
+        eventChat: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
   }
@@ -197,6 +210,11 @@ export class EventService {
         description: true,
         startDate: true,
         eventColors: true,
+        eventChat: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
   }
