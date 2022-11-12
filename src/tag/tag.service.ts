@@ -13,6 +13,8 @@ export class TagService {
 
   async getAllTags() {
     const tags = this.prisma.category.findMany({
+      skip: 0,
+      take: 20,
       select: {
         name: true,
       },
