@@ -38,9 +38,10 @@ model User {
   Session       Session[]
   categoryIDs   String[]    @db.ObjectId
   categories    Category[]  @relation(fields: [categoryIDs], references: [id])
-
-  // userId String? @db.ObjectId
-  // User   User?   @relation(fields: [userId], references: [id])
+  followedBy    User[]      @relation("UserFollows", fields: [followedByIDs], references: [id])
+  followedByIDs String[]    @db.ObjectId
+  following     User[]      @relation("UserFollows", fields: [followingIDs], references: [id])
+  followingIDs  String[]    @db.ObjectId
 }
 
 model Category {

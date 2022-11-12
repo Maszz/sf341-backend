@@ -7,6 +7,7 @@ import {
   Post,
   Body,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDto, UserRespondDto } from './dto/user.dto';
@@ -33,13 +34,13 @@ export class UserController {
   //   return data;
   // }
 
-  @Get(':username')
+  @Get('getUserByUsername')
   @ApiOkResponse({
     description: 'User response',
     type: UserRespondDto || 'User not found',
   })
   async getUser(
-    @Param('username') username: string,
+    @Query('username') username: string,
   ): Promise<UserRespondDto | 'User not found'> {
     const user =
       (await this.userService.getUserByuserName(username)) || 'User not found';
@@ -98,6 +99,41 @@ export class UserController {
     });
     return tags;
   }
+
+  @Get('followers')
+  async getFollowers(@Query('u') username: string): Promise<any> {
+    // TODO
+    const user = await this.userService.getFollowers(username);
+    return user;
+  }
+  @Get('following')
+  async getFollowing(@Query('u') username: string): Promise<any> {
+    // TODO
+    const user = await this.userService.getFollowing(username);
+    return user;
+  }
+  @Get('followCount')
+  async getFollowCount(@Query('u') username: string): Promise<any> {
+    // TODO
+    const user = await this.userService.getFollowCount(username);
+    return user;
+  }
+
+  @Post('followingUserByid')
+  async followingUserByid(@Body() args: FollowingUserByidParams): Promise<any> {
+    // TODO
+    const user = await this.userService.followingUserByid(args);
+
+    return user;
+  }
+
+  // @Post('unfollowingUserByid')
+  // async unfollowingUserByid()
+}
+
+export interface FollowingUserByidParams {
+  userId: string;
+  followingUserId: string;
 }
 
 export interface UpdateOnboardingParams {

@@ -41,6 +41,12 @@ export class UserService {
       },
 
       select: {
+        _count: {
+          select: {
+            followedBy: true,
+            following: true,
+          },
+        },
         username: true,
         profile: {
           select: {
@@ -249,5 +255,103 @@ export class UserService {
         name: true,
       },
     });
+  }
+
+  async followingUserByid(args: { userId: string; followingUserId: string }) {
+    const { userId, followingUserId } = args;
+    console.log(userId, followingUserId);
+    return this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        following: {
+          connect: {
+            id: followingUserId,
+          },
+        },
+      },
+    });
+  }
+
+  async getFollowers(username: string): Promise<any> {
+    // TODO
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+      select: {
+        followedBy: {
+          select: {
+            id: true,
+            username: true,
+            profile: {
+              select: {
+                displayName: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const formattedFollowers = user.followedBy.map((follower) => {
+      return {
+        username: follower.username,
+        displayName: follower.profile.displayName,
+      };
+    });
+    return formattedFollowers;
+  }
+
+  async getFollowing(username: string): Promise<any> {
+    // TODO
+    console.log(username);
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+      select: {
+        following: {
+          select: {
+            id: true,
+            username: true,
+            profile: {
+              select: {
+                displayName: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    console.log(user);
+
+    const formattedFollowers = user.following.map((follower) => {
+      return {
+        id: follower.id,
+        username: follower.username,
+        displayName: follower.profile.displayName,
+      };
+    });
+    return formattedFollowers;
+  }
+
+  async getFollowCount(username: string): Promise<any> {
+    // TODO
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+      select: {
+        _count: {
+          select: {
+            followedBy: true,
+            following: true,
+          },
+        },
+      },
+    });
+    return user._count;
   }
 }
