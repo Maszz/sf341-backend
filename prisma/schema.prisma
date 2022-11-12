@@ -57,6 +57,7 @@ model Profile {
   displayName String?
   gender      String?
   bio         String?
+  eventCount  Int     @default(0)
 
   isProfilePublic Boolean @default(true)
   user            User?   @relation(fields: [userId], references: [id])

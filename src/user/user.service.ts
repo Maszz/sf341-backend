@@ -54,6 +54,7 @@ export class UserService {
             bio: true,
             displayName: true,
             isProfilePublic: true,
+            eventCount: true,
           },
         },
         categories: {

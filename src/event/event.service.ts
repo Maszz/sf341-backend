@@ -112,6 +112,21 @@ export class EventService {
         },
       },
     });
+
+    const user = await this.prisma.user.update({
+      where: {
+        username: username,
+      },
+      data: {
+        profile: {
+          update: {
+            eventCount: {
+              increment: 1,
+            },
+          },
+        },
+      },
+    });
     return paticipan;
   }
 
