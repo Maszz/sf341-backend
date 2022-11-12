@@ -38,6 +38,9 @@ model User {
   Session       Session[]
   categoryIDs   String[]    @db.ObjectId
   categories    Category[]  @relation(fields: [categoryIDs], references: [id])
+
+  // userId String? @db.ObjectId
+  // User   User?   @relation(fields: [userId], references: [id])
 }
 
 model Category {
