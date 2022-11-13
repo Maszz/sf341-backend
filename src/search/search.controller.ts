@@ -41,6 +41,7 @@ export class SearchController {
   async search(
     // @Param() param: { keyword: string },
     @Query('term') term: string,
+    @Query('u') username: string,
   ): Promise<SearchContent[]> {
     const cache = await this.redis.get(`search?${term}`);
     if (cache) {
@@ -51,7 +52,10 @@ export class SearchController {
       console.log('empty');
       return Promise.resolve([]);
     }
-    const result = await this.service.search(term);
+    const result = await this.service.search({
+      keyword: term,
+      username: username,
+    });
     this.redis.set(`search?${term}`, JSON.stringify(result), 'EX', 10);
     return result;
   }

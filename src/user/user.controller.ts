@@ -13,7 +13,7 @@ import { UserService } from './user.service';
 import { UserDto, UserRespondDto } from './dto/user.dto';
 
 import { LoggerService } from '../logger/logger.service';
-import { User, Prisma } from '@prisma/client';
+import { User, Prisma, FollowingRequest } from '@prisma/client';
 import { UserUpdateProfileDto } from './dto/user-update-profile.dto';
 import { ApiProperty, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 @ApiTags('User')
@@ -116,21 +116,63 @@ export class UserController {
   async getFollowCount(@Query('u') username: string): Promise<any> {
     // TODO
     const user = await this.userService.getFollowCount(username);
+    console.log(user);
     return user;
   }
 
   @Post('followingUserByid')
-  async followingUserByid(@Body() args: FollowingUserByidParams): Promise<any> {
+  async followingUserByid(
+    @Body() args: FollowingUserByidParams,
+  ): Promise<User | FollowingRequest> {
     // TODO
     const user = await this.userService.followingUserByid(args);
 
     return user;
   }
 
+  @Post('follwingRequest')
+  async follwingRequest(@Body() args: FollwingRequestParams): Promise<any> {
+    const user = await this.userService.followingRequest(args);
+    return user;
+  }
+  @Get('getFollowingRequestTo')
+  async getFollowingRequest(@Query('u') username: string): Promise<any> {
+    const user = await this.userService.getFollowingRequest(username);
+
+    return user;
+  }
+  @Get('getFollowingRequestFrom')
+  async getFollowingRequestFrom(@Query('u') username: string): Promise<
+    {
+      username: string;
+      displayName: string;
+      id: string;
+    }[]
+  > {
+    const user = await this.userService.getFollowingRequestFrom(username);
+
+    return user;
+  }
+  @Post('handleFollowingRequest')
+  async handleFollowingRequest(
+    @Body() args: HandleFollowingRequestParams,
+  ): Promise<any> {
+    // TODO
+    const user = await this.userService.handleFollowingRequest(args);
+    return user;
+  }
+
   // @Post('unfollowingUserByid')
   // async unfollowingUserByid()
 }
-
+export interface HandleFollowingRequestParams {
+  requestId: string;
+  status: 'accepted' | 'rejected';
+}
+export interface FollwingRequestParams {
+  followerId: string;
+  followingId: string;
+}
 export interface FollowingUserByidParams {
   userId: string;
   followingUserId: string;

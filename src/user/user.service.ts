@@ -261,6 +261,32 @@ export class UserService {
   async followingUserByid(args: { userId: string; followingUserId: string }) {
     const { userId, followingUserId } = args;
     console.log(userId, followingUserId);
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: followingUserId,
+      },
+      select: {
+        profile: {
+          select: {
+            isProfilePublic: true,
+          },
+        },
+      },
+    });
+    console.log(user.profile);
+    if (userId == followingUserId) {
+      throw new ForbiddenException('you can not follow yourself');
+    }
+    if (!user.profile.isProfilePublic) {
+      // throw new ForbiddenException('this user is private');
+      console.log('this user is private');
+      const res = await this.followingRequest({
+        followerId: userId,
+        followingId: followingUserId,
+      });
+      return res;
+    }
+
     return this.prisma.user.update({
       where: {
         id: userId,
@@ -351,8 +377,132 @@ export class UserService {
             following: true,
           },
         },
+        FollowingRequestBy: {
+          where: {
+            status: 'pending',
+          },
+          select: {
+            id: true,
+          },
+        },
       },
     });
-    return user._count;
+    const followingRequestBy = user.FollowingRequestBy.length;
+
+    return { ...user._count, followingRequestBy };
+  }
+
+  async followingRequest(args: { followerId: string; followingId: string }) {
+    const followingRequest = await this.prisma.followingRequest.create({
+      data: {
+        From: {
+          connect: {
+            id: args.followerId,
+          },
+        },
+        To: {
+          connect: {
+            id: args.followingId,
+          },
+        },
+      },
+    });
+    return followingRequest;
+  }
+
+  async getFollowingRequest(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+      select: {
+        FollowingRequestTo: {
+          where: {
+            status: 'pending',
+          },
+          select: {
+            To: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    const formattedFollowingRequest = user.FollowingRequestTo.map((request) => {
+      return request.To.username;
+    });
+    return formattedFollowingRequest;
+  }
+
+  async getFollowingRequestFrom(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+      select: {
+        FollowingRequestBy: {
+          where: {
+            status: 'pending',
+          },
+          select: {
+            id: true,
+            To: {
+              select: {
+                username: true,
+                profile: {
+                  select: {
+                    displayName: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    const formattedFollowingRequestFrom = user.FollowingRequestBy.map(
+      (request) => {
+        return {
+          id: request.id,
+          username: request.To.username,
+          displayName: request.To.profile.displayName,
+        };
+      },
+    );
+    return formattedFollowingRequestFrom;
+  }
+
+  async handleFollowingRequest(args: {
+    requestId: string;
+    status: 'accepted' | 'rejected';
+  }) {
+    const { requestId } = args;
+    console.log(args);
+
+    const request = await this.prisma.followingRequest.update({
+      where: {
+        id: requestId,
+      },
+      data: {
+        status: args.status,
+      },
+    });
+    if (request.status == 'accepted') {
+      return await this.prisma.user.update({
+        where: {
+          id: request.toIDs,
+        },
+        data: {
+          followedBy: {
+            connect: {
+              id: request.fromIDs,
+            },
+          },
+        },
+      });
+    }
+    return request;
   }
 }

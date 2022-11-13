@@ -53,7 +53,11 @@ export class SearchService {
     private readonly httpService: HttpService,
   ) {}
 
-  async search(keyword: string): Promise<SearchContent[]> {
+  async search(args: {
+    keyword: string;
+    username: string;
+  }): Promise<SearchContent[]> {
+    const { keyword, username } = args;
     const events = await this.prisma.event.findMany({
       where: {
         OR: [
@@ -91,10 +95,19 @@ export class SearchService {
     });
     const user = await this.prisma.user.findMany({
       where: {
-        username: {
-          contains: keyword,
-          mode: 'insensitive',
-        },
+        AND: [
+          {
+            username: {
+              contains: keyword,
+              mode: 'insensitive',
+            },
+          },
+          {
+            username: {
+              not: username,
+            },
+          },
+        ],
       },
       select: {
         username: true,
