@@ -9,6 +9,8 @@ import {
   MemberType,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationService } from '../notification/notification.service';
+
 interface ICreateEventArgs {
   eventName: string;
   eventDescription: string;
@@ -33,6 +35,7 @@ export class EventService {
   constructor(
     private readonly logger: Logger, // initialize logger instance
     private readonly prisma: PrismaService, // initialize prisma instance:
+    private readonly notiService: NotificationService,
   ) {}
 
   async createEvent(
@@ -73,6 +76,11 @@ export class EventService {
         },
       },
     });
+    this.notiService.createFollowingNotification(
+      `${data.creatorUsername} created a new event`,
+      'createEvent',
+      data.creatorUsername,
+    );
     return { event, eventChat };
   }
 

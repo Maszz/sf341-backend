@@ -1,11 +1,13 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
-
+import { UnfollowingUserByidParams } from './user.controller';
+import { RemoveFollowerByIdParams } from './user.controller';
 import {
   UpdateOnboardingParams,
   UpdateOnboardingGenderParams,
 } from './user.controller';
+import { NotificationService } from 'src/notification/notification.service';
 interface IUpdateProfileParamsArgs {
   profile: {
     bio?: string;
@@ -19,7 +21,10 @@ interface IUpdateProfileParamsArgs {
 }
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notiService: NotificationService,
+  ) {}
   getData(): { message: string } {
     return { message: 'Welcome to backend!' };
   }
@@ -315,6 +320,7 @@ export class UserService {
             profile: {
               select: {
                 displayName: true,
+                bio: true,
               },
             },
           },
@@ -324,8 +330,10 @@ export class UserService {
 
     const formattedFollowers = user.followedBy.map((follower) => {
       return {
+        id: follower.id,
         username: follower.username,
         displayName: follower.profile.displayName,
+        bio: follower.profile.bio,
       };
     });
     return formattedFollowers;
@@ -345,6 +353,7 @@ export class UserService {
             username: true,
             profile: {
               select: {
+                bio: true,
                 displayName: true,
               },
             },
@@ -359,6 +368,7 @@ export class UserService {
         id: follower.id,
         username: follower.username,
         displayName: follower.profile.displayName,
+        bio: follower.profile.bio,
       };
     });
     return formattedFollowers;
@@ -407,6 +417,20 @@ export class UserService {
         },
       },
     });
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: args.followerId,
+      },
+      select: {
+        username: true,
+      },
+    });
+    await this.notiService.createNotificationFollowingRequest(
+      `${user.username} wants to follow you`,
+      'followingRequest',
+      args.followingId,
+      args.followerId,
+    );
     return followingRequest;
   }
 
@@ -504,5 +528,56 @@ export class UserService {
       });
     }
     return request;
+  }
+
+  async unfollowingUserByid(args: UnfollowingUserByidParams) {
+    const { followerId, unfollowingId } = args;
+    return this.prisma.user.update({
+      where: {
+        id: followerId,
+      },
+      data: {
+        following: {
+          disconnect: {
+            id: unfollowingId,
+          },
+        },
+      },
+    });
+  }
+  async removeFollowerById(args: RemoveFollowerByIdParams) {
+    const { followerId, userId } = args;
+    return this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        followedBy: {
+          disconnect: {
+            id: followerId,
+          },
+        },
+      },
+    });
+  }
+  async getNotifications(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+      select: {
+        Notifications: {
+          select: {
+            creator: {
+              select: {
+                username: true,
+              },
+            },
+            message: true,
+          },
+        },
+      },
+    });
+    return user.Notifications;
   }
 }

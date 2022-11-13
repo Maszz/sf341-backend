@@ -5,6 +5,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 datasource db {
   provider = "mongodb"
   // url      = "mongodb+srv://user:cyCrKA5yF5O0fchi@cluster0.ubk8hwf.mongodb.net/sf341?retryWrites=true&w=majority"
@@ -45,6 +49,22 @@ model User {
 
   FollowingRequestTo FollowingRequest[] @relation("followingRequestTo")
   FollowingRequestBy FollowingRequest[] @relation("followingRequestBy")
+  NotificationsIds   String[]           @db.ObjectId
+  Notifications      Notification[]     @relation("NotificationTo", fields: [NotificationsIds], references: [id])
+  Notification       Notification[]
+}
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  type      String?
+  refID     String?  @db.ObjectId
+  message   String
+  creator   User?    @relation(fields: [userId], references: [id])
+  users     User[]   @relation("NotificationTo", fields: [userIDs], references: [id])
+  userIDs   String[] @db.ObjectId
+  userId    String?  @db.ObjectId
 }
 
 model Category {

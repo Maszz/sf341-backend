@@ -162,8 +162,37 @@ export class UserController {
     return user;
   }
 
-  // @Post('unfollowingUserByid')
-  // async unfollowingUserByid()
+  @Post('unFollowingById')
+  async unfollowingUserByid(
+    @Body() args: UnfollowingUserByidParams,
+  ): Promise<any> {
+    // TODO
+    const user = await this.userService.unfollowingUserByid(args);
+    return user;
+  }
+
+  @Post('removeFollowerById')
+  async removeFollowerById(
+    @Body() args: RemoveFollowerByIdParams,
+  ): Promise<any> {
+    const user = await this.userService.removeFollowerById(args);
+    return user;
+  }
+
+  @Get('getNotifications')
+  async getNotifications(@Query('u') username: string): Promise<any> {
+    const user = await this.userService.getNotifications(username);
+    return user;
+  }
+}
+export interface RemoveFollowerByIdParams {
+  userId: string;
+  followerId: string;
+}
+
+export interface UnfollowingUserByidParams {
+  followerId: string;
+  unfollowingId: string;
 }
 export interface HandleFollowingRequestParams {
   requestId: string;
