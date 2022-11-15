@@ -114,6 +114,27 @@ export class EventController {
     return this.eventService.addPaticipantToEvent(args);
   }
 
+  @Post('/createPost')
+  async createEventPost(@Body() args: CreatePostDto) {
+    const post = await this.eventService.createEventPost(args);
+    return post;
+  }
+
+  @Post('/createComment')
+  async createEventComment(@Body() args: CreateCommentDto) {
+    const comment = await this.eventService.createEventComment(args);
+    return comment;
+  }
+
+  @Get('/getEventPostList')
+  async getEventPostList(
+    @Query('offset') offset: number,
+    @Query('limit') limit: number,
+    @Query('eventId') eventId: string,
+  ) {
+    return this.eventService.getEventPostList({ offset, limit, eventId });
+  }
+
   // @Post('/removeParticipant')
   // @ApiOkResponse({
   //   description: 'The event records by id.',
@@ -134,4 +155,20 @@ export class EventController {
   // async getEvent(@Param('eventId') eventId: string): Promise<GetEventByIdDto> {
   //   return this.eventService.getEventById(eventId);
   // }
+}
+
+export interface CreatePostDto {
+  eventId: string;
+  content: string;
+  creatorUsername: string;
+}
+export interface CreateCommentDto {
+  postId: string;
+  content: string;
+  creatorUsername: string;
+}
+export interface GetEventPostListDto {
+  eventId: string;
+  offset: number;
+  limit: number;
 }

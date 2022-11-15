@@ -34,6 +34,8 @@ Table User {
   NotificationsIds String[] [not null]
   Notifications Notification [not null]
   Notification Notification [not null]
+  EventPosts EventPost [not null]
+  EventComments EventComment [not null]
 }
 
 Table Notification {
@@ -129,6 +131,31 @@ Table Event {
   participantsId String[] [not null]
   participants User [not null]
   eventChat EventChat
+  EventPost EventPost [not null]
+}
+
+Table EventPost {
+  id String [pk]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  content String [not null]
+  creatorId String [not null]
+  creator User
+  eventId String [not null]
+  event Event
+  comments EventComment [not null]
+  likes Int [not null, default: 0]
+}
+
+Table EventComment {
+  id String [pk]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  content String [not null]
+  creatorId String [not null]
+  creator User
+  postId String [not null]
+  post EventPost
 }
 
 Table EventChat {
@@ -190,6 +217,14 @@ Ref: FollowingRequest.toIDs > User.id
 Ref: Event.creatorId > User.username
 
 Ref: Event.participantsId > User.id
+
+Ref: EventPost.creatorId > User.username
+
+Ref: EventPost.eventId > Event.id
+
+Ref: EventComment.creatorId > User.username
+
+Ref: EventComment.postId > EventPost.id
 
 Ref: EventChat.eventId - Event.id
 

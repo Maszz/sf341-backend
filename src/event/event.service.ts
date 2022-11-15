@@ -10,6 +10,7 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationService } from '../notification/notification.service';
+import { map } from 'rxjs/operators';
 
 interface ICreateEventArgs {
   eventName: string;
@@ -80,6 +81,7 @@ export class EventService {
       `${data.creatorUsername} created a new event`,
       'createEvent',
       data.creatorUsername,
+      event.id,
     );
     return { event, eventChat };
   }
@@ -120,6 +122,13 @@ export class EventService {
         },
       },
     });
+    this.notiService.createJoinEventNotification(
+      `${username} joined your event`,
+      'joinEvent',
+      creator.creator.username,
+      username,
+      eventId,
+    );
 
     const user = await this.prisma.user.update({
       where: {
@@ -261,6 +270,98 @@ export class EventService {
           },
         },
       },
+    });
+  }
+
+  async createEventPost(args: {
+    creatorUsername: string;
+    content: string;
+    eventId: string;
+  }) {
+    const { creatorUsername, content, eventId } = args;
+    const event = await this.prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+    });
+
+    const post = await this.prisma.eventPost.create({
+      data: {
+        creator: {
+          connect: {
+            username: creatorUsername,
+          },
+        },
+        content: content,
+        event: {
+          connect: {
+            id: eventId,
+          },
+        },
+      },
+    });
+    return post;
+  }
+
+  async createEventComment(args: {
+    postId: string;
+    content: string;
+    creatorUsername: string;
+  }) {
+    const { postId, content, creatorUsername } = args;
+
+    const comment = await this.prisma.eventComment.create({
+      data: {
+        creator: {
+          connect: {
+            username: creatorUsername,
+          },
+        },
+        content: content,
+        post: {
+          connect: {
+            id: postId,
+          },
+        },
+      },
+    });
+
+    return comment;
+  }
+
+  async getEventPostList(args: {
+    eventId: string;
+    offset: number;
+    limit: number;
+  }) {
+    const { eventId, offset, limit } = args;
+    console.log(eventId);
+    const posts = await this.prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      select: {
+        EventPost: {
+          select: {
+            id: true,
+            content: true,
+            creator: {
+              select: {
+                username: true,
+              },
+            },
+            createdAt: true,
+          },
+        },
+      },
+    });
+    return posts.EventPost.map((p) => {
+      return {
+        id: p.id,
+        content: p.content,
+        creator: p.creator.username,
+        createdAt: p.createdAt,
+      };
     });
   }
 }

@@ -52,6 +52,8 @@ model User {
   NotificationsIds   String[]           @db.ObjectId
   Notifications      Notification[]     @relation("NotificationTo", fields: [NotificationsIds], references: [id])
   Notification       Notification[]
+  EventPosts         EventPost[]
+  EventComments      EventComment[]
 }
 
 model Notification {
@@ -156,9 +158,9 @@ enum MemberType {
 }
 
 model Event {
-  id              String     @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
   name            String
   description     String
   startDate       DateTime
@@ -172,10 +174,35 @@ model Event {
   isPublic        Boolean
   eventColors     Color
   creatorId       String
-  creator         User?      @relation("creator", fields: [creatorId], references: [username])
-  participantsId  String[]   @db.ObjectId
-  participants    User[]     @relation("participants", fields: [participantsId], references: [id])
+  creator         User?       @relation("creator", fields: [creatorId], references: [username])
+  participantsId  String[]    @db.ObjectId
+  participants    User[]      @relation("participants", fields: [participantsId], references: [id])
   eventChat       EventChat?
+  EventPost       EventPost[]
+}
+
+model EventPost {
+  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  content   String
+  creatorId String
+  creator   User?          @relation(fields: [creatorId], references: [username])
+  eventId   String
+  event     Event?         @relation(fields: [eventId], references: [id])
+  comments  EventComment[]
+  likes     Int            @default(0)
+}
+
+model EventComment {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  content   String
+  creatorId String
+  creator   User?      @relation(fields: [creatorId], references: [username])
+  postId    String
+  post      EventPost? @relation(fields: [postId], references: [id])
 }
 
 model EventChat {

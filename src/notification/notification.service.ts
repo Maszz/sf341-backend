@@ -5,7 +5,12 @@ import { PrismaService } from '../prisma/prisma.service';
 export class NotificationService {
   constructor(private prisma: PrismaService) {}
 
-  async createFollowingNotification(msg: string, ctx: any, username: string) {
+  async createFollowingNotification(
+    msg: string,
+    ctx: any,
+    username: string,
+    refId: string,
+  ) {
     const user = await this.prisma.user.findUnique({
       where: {
         username: username,
@@ -20,7 +25,7 @@ export class NotificationService {
 
     const notification = await this.prisma.notification.create({
       data: {
-        type: 'ctx',
+        type: ctx,
         message: msg,
         creator: {
           connect: {
@@ -30,6 +35,7 @@ export class NotificationService {
         users: {
           connect: formattedArr,
         },
+        refID: refId,
       },
     });
     return notification;
@@ -57,6 +63,36 @@ export class NotificationService {
             },
           ],
         },
+        refID: creatorId,
+      },
+    });
+    return notification;
+  }
+
+  async createJoinEventNotification(
+    msg: string,
+    ctx: string,
+    userId: string,
+    creatorId: string,
+    ref: string,
+  ) {
+    const notification = await this.prisma.notification.create({
+      data: {
+        type: ctx,
+        message: msg,
+        creator: {
+          connect: {
+            username: creatorId,
+          },
+        },
+        users: {
+          connect: [
+            {
+              username: userId,
+            },
+          ],
+        },
+        refID: ref,
       },
     });
     return notification;
