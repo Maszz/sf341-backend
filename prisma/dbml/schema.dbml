@@ -68,6 +68,7 @@ Table Profile {
   isProfilePublic Boolean [not null, default: true]
   user User
   userId String [unique]
+  avarar String
 }
 
 Table UserSecret {
@@ -132,6 +133,16 @@ Table Event {
   participants User [not null]
   eventChat EventChat
   EventPost EventPost [not null]
+  EventPinedPost EventPinedPost
+}
+
+Table EventPinedPost {
+  id String [pk]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  content String [not null]
+  eventId String [unique, not null]
+  event Event [not null]
 }
 
 Table EventPost {
@@ -217,6 +228,8 @@ Ref: FollowingRequest.toIDs > User.id
 Ref: Event.creatorId > User.username
 
 Ref: Event.participantsId > User.id
+
+Ref: EventPinedPost.eventId - Event.id
 
 Ref: EventPost.creatorId > User.username
 

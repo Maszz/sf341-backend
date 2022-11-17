@@ -364,4 +364,108 @@ export class EventService {
       };
     });
   }
+
+  async getEventCommentList(args: {
+    offset: number;
+    limit: number;
+    postId: string;
+  }) {
+    const { postId, offset, limit } = args;
+    const comments = await this.prisma.eventPost.findUnique({
+      where: {
+        id: postId,
+      },
+      select: {
+        comments: {
+          select: {
+            id: true,
+            content: true,
+            creator: {
+              select: {
+                username: true,
+              },
+            },
+            createdAt: true,
+          },
+        },
+      },
+    });
+    return comments.comments.map((c) => {
+      return {
+        id: c.id,
+        content: c.content,
+        creator: c.creator.username,
+        createdAt: c.createdAt,
+      };
+    });
+  }
+  async createPinPost(args: {
+    eventId: string;
+    creatorUsername: string;
+    content: string;
+  }) {
+    const { creatorUsername, content, eventId } = args;
+    console.log(args);
+    const event = await this.prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      select: {
+        creator: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+    if (!event) {
+      throw new Error('Event not found');
+    }
+    if (event.creator.username !== creatorUsername) {
+      throw new Error('You are not the creator of this event');
+    }
+    const post = await this.prisma.event.update({
+      where: {
+        id: eventId,
+      },
+      data: {
+        EventPinedPost: {
+          upsert: {
+            create: {
+              content: content,
+            },
+            update: {
+              content: content,
+            },
+          },
+        },
+      },
+    });
+    // console.log(post);
+    return post;
+  }
+
+  async getPinPost(args: { eventId: string }) {
+    const { eventId } = args;
+    const post = await this.prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      select: {
+        creator: {
+          select: {
+            username: true,
+          },
+        },
+        EventPinedPost: {
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+    return post;
+  }
 }

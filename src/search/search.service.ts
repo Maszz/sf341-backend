@@ -116,6 +116,7 @@ export class SearchService {
           select: {
             displayName: true,
             bio: true,
+            avarar: true,
           },
         },
       },
@@ -127,6 +128,7 @@ export class SearchService {
         id: user.id,
         name: user.profile?.displayName || '',
         bio: user.profile?.bio || '',
+        avarar: user.profile?.avarar || '',
       };
     });
     const result = [...eventsArr, ...userArr] as SearchContent[];

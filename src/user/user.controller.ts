@@ -184,6 +184,12 @@ export class UserController {
     const user = await this.userService.getNotifications(username);
     return user;
   }
+
+  @Get('getAvatar')
+  async getAvatar(@Query('u') username: string): Promise<any> {
+    const user = await this.userService.getAvatar(username);
+    return { avarar: user };
+  }
 }
 export interface RemoveFollowerByIdParams {
   userId: string;

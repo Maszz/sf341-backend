@@ -119,11 +119,30 @@ export class EventController {
     const post = await this.eventService.createEventPost(args);
     return post;
   }
+  @Post('/createPinPost')
+  async createPinPost(@Body() args: CreatePinPostDto) {
+    return this.eventService.createPinPost(args);
+  }
+
+  @Get('/getEventPinedPost')
+  async getPinPost(@Query('eventId') eventId: string) {
+    return this.eventService.getPinPost({ eventId });
+  }
 
   @Post('/createComment')
   async createEventComment(@Body() args: CreateCommentDto) {
     const comment = await this.eventService.createEventComment(args);
     return comment;
+  }
+
+  @Get('/getCommentList')
+  async getEventCommentList(
+    @Query('offset') offset: number,
+    @Query('limit') limit: number,
+    @Query('postId') postId: string,
+  ) {
+    console.log({ offset, limit, postId });
+    return this.eventService.getEventCommentList({ offset, limit, postId });
   }
 
   @Get('/getEventPostList')
@@ -155,6 +174,16 @@ export class EventController {
   // async getEvent(@Param('eventId') eventId: string): Promise<GetEventByIdDto> {
   //   return this.eventService.getEventById(eventId);
   // }
+}
+
+export interface GetPinPostDto {
+  eventId: string;
+}
+
+export interface CreatePinPostDto {
+  eventId: string;
+  creatorUsername: string;
+  content: string;
 }
 
 export interface CreatePostDto {

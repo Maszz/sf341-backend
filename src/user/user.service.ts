@@ -60,6 +60,7 @@ export class UserService {
             displayName: true,
             isProfilePublic: true,
             eventCount: true,
+            avarar: true,
           },
         },
         categories: {
@@ -69,6 +70,7 @@ export class UserService {
         },
       },
     });
+    console.log(user);
 
     const tags = user.categories.map((category) => category.name);
     return {
@@ -579,5 +581,21 @@ export class UserService {
       },
     });
     return user.Notifications;
+  }
+
+  async getAvatar(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+      select: {
+        profile: {
+          select: {
+            avarar: true,
+          },
+        },
+      },
+    });
+    return user.profile.avarar;
   }
 }

@@ -2,9 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ForbiddenException } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const whitelist = ['http://localhost:3000', 'http://localhost:3333'];
   app.enableCors({
     origin: function (origin, callback) {
@@ -18,7 +19,8 @@ async function bootstrap() {
     },
     credentials: true,
   });
-
+  console.log(join(__dirname, '..', './public'));
+  app.useStaticAssets(join(__dirname, '..', './public'));
   const config = new DocumentBuilder()
     .setTitle('REST Endpont Doc')
     .setDescription('All avarable REST endpoints')
