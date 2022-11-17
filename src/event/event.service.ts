@@ -110,6 +110,20 @@ export class EventService {
       throw new ForbiddenException('You are already a participant');
       return;
     }
+    const event = await this.prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+    });
+    if (
+      event.memberType === 'LIMIT' &&
+      event.memberLimit >= event.participantsId.length + 1
+    ) {
+      console.log('case3');
+      throw new ForbiddenException('Event is full');
+      return;
+    }
+
     const paticipan = await this.prisma.event.update({
       where: {
         id: eventId,
@@ -171,10 +185,29 @@ export class EventService {
       where: {
         id: eventId,
       },
+
       include: {
         eventChat: {
           select: {
             id: true,
+          },
+        },
+        creator: {
+          select: {
+            profile: {
+              select: {
+                avarar: true,
+              },
+            },
+          },
+        },
+        participants: {
+          select: {
+            profile: {
+              select: {
+                avarar: true,
+              },
+            },
           },
         },
       },
@@ -207,6 +240,24 @@ export class EventService {
         description: true,
         startDate: true,
         eventColors: true,
+        participants: {
+          select: {
+            profile: {
+              select: {
+                avarar: true,
+              },
+            },
+          },
+        },
+        creator: {
+          select: {
+            profile: {
+              select: {
+                avarar: true,
+              },
+            },
+          },
+        },
 
         eventChat: {
           select: {
@@ -240,6 +291,24 @@ export class EventService {
             id: true,
           },
         },
+        participants: {
+          select: {
+            profile: {
+              select: {
+                avarar: true,
+              },
+            },
+          },
+        },
+        creator: {
+          select: {
+            profile: {
+              select: {
+                avarar: true,
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -267,6 +336,24 @@ export class EventService {
         eventChat: {
           select: {
             id: true,
+          },
+        },
+        participants: {
+          select: {
+            profile: {
+              select: {
+                avarar: true,
+              },
+            },
+          },
+        },
+        creator: {
+          select: {
+            profile: {
+              select: {
+                avarar: true,
+              },
+            },
           },
         },
       },
