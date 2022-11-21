@@ -6,7 +6,6 @@ import {
   FirebaseAppSettings,
   FirebaseOptions,
 } from 'firebase/app';
-import serviceAccount from './sf341-key.json';
 import { App, AppOptions } from 'firebase-admin/app';
 import fs from 'fs';
 import {
@@ -23,10 +22,7 @@ import sharp, { Sharp } from 'sharp';
 export class FileHandlerService {
   private firebase: FirebaseApp;
   private storage: FirebaseStorage;
-  constructor(private prisma: PrismaService) {
-    this.firebase = initializeApp(serviceAccount as FirebaseOptions);
-    this.storage = getStorage(this.firebase, 'gs://sf341-6eb70.appspot.com');
-  }
+  constructor(private prisma: PrismaService) {}
 
   getStorageRef(path: string) {
     return ref(this.storage, path);

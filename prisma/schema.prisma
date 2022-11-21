@@ -11,8 +11,6 @@ generator dbml {
 
 datasource db {
   provider = "mongodb"
-  // url      = "mongodb+srv://user:cyCrKA5yF5O0fchi@cluster0.ubk8hwf.mongodb.net/sf341?retryWrites=true&w=majority"
-  // url      = "mongodb://192.168.1.183:49155/sf341?readPreference=primary&directConnection=true&ssl=false"
   url      = env("DATABASE_URL")
 }
 
