@@ -117,7 +117,7 @@ export class EventService {
     });
     if (
       event.memberType === 'LIMIT' &&
-      event.memberLimit >= event.participantsId.length + 1
+      event.memberLimit <= event.participantsId.length + 1
     ) {
       console.log('case3');
       throw new ForbiddenException('Event is full');
@@ -164,6 +164,29 @@ export class EventService {
   async removePaticipantToEvent(data: IAddParticipantArgs) {
     // TODO
     const { eventId, username } = data;
+    const creator = await this.prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      select: {
+        creator: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+
+    if (creator.creator.username === username) {
+      console.log('case1');
+      const a = await this.prisma.event.delete({
+        where: {
+          id: eventId,
+        },
+      });
+
+      return a;
+    }
 
     const paticipan = await this.prisma.event.update({
       where: {
@@ -172,7 +195,7 @@ export class EventService {
       data: {
         participants: {
           disconnect: {
-            id: username,
+            username: username,
           },
         },
       },

@@ -18,7 +18,7 @@ import {
   UploadResult,
   getDownloadURL,
 } from 'firebase/storage';
-
+import sharp, { Sharp } from 'sharp';
 @Injectable()
 export class FileHandlerService {
   private firebase: FirebaseApp;
@@ -42,6 +42,7 @@ export class FileHandlerService {
   }
 
   async uploadImage(file: any, userId: string) {
+    const buff = await sharp().resize({ width: 200 }).toBuffer();
     const res = await this.prisma.user.update({
       where: {
         username: userId,

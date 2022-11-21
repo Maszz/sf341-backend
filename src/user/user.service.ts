@@ -61,6 +61,7 @@ export class UserService {
             isProfilePublic: true,
             eventCount: true,
             avarar: true,
+            colors: true,
           },
         },
         categories: {
@@ -596,6 +597,7 @@ export class UserService {
         },
       },
     });
+    console.log(user);
     return user.profile.avarar;
   }
 }

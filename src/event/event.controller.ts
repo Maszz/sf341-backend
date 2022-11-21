@@ -101,7 +101,9 @@ export class EventController {
 
   @Get('/getEventById')
   async getEventById(@Query('id') id: string): Promise<any> {
-    return this.eventService.getEventByIdForCardDisplay(id);
+    const data = await this.eventService.getEventByIdForCardDisplay(id);
+    console.log(data);
+    return data;
   }
 
   @Post('/addParticipant')
@@ -154,17 +156,15 @@ export class EventController {
     return this.eventService.getEventPostList({ offset, limit, eventId });
   }
 
-  // @Post('/removeParticipant')
-  // @ApiOkResponse({
-  //   description: 'The event records by id.',
-  //   type: EventDto,
-  // })
-  // @HttpCode(200)
-  // async removeParticipant(
-  //   @Body() args: RemoveParticipantDto,
-  // ): Promise<EventDto> {
-  //   return this.eventService.removePaticipantToEvent(args);
-  // }
+  @Post('/removeParticipant')
+  @ApiOkResponse({
+    description: 'The event records by id.',
+    type: EventDto,
+  })
+  @HttpCode(200)
+  async removeParticipant(@Body() args: RemoveParticipantDto): Promise<any> {
+    return this.eventService.removePaticipantToEvent(args);
+  }
 
   // @ApiOkResponse({
   //   description: 'The event records by id.',

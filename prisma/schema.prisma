@@ -77,12 +77,13 @@ model Category {
 }
 
 model Profile {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
   realName    String?
   displayName String?
   gender      String?
   bio         String?
-  eventCount  Int     @default(0)
+  eventCount  Int           @default(0)
+  colors      profileColor?
 
   isProfilePublic Boolean @default(true)
   user            User?   @relation(fields: [userId], references: [id])
@@ -146,6 +147,11 @@ type Region {
   longitudeDelta Float
   latitude       Float
   longitude      Float
+}
+
+type profileColor {
+  c1 String @default("#FFEAE5")
+  c2 String @default("#8C84D4")
 }
 
 type Color {

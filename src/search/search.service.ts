@@ -29,6 +29,11 @@ export type SearchContent = {
   location?: string;
   name?: string;
   bio?: string;
+  eventData?: {
+    memberLimit: number;
+    memberType: 'LIMIT' | 'UNLIMITED';
+    participantsId: string[];
+  };
 };
 export type test =
   | {
@@ -82,6 +87,9 @@ export class SearchService {
         startDate: true,
         locationName: true,
         id: true,
+        memberLimit: true,
+        memberType: true,
+        participantsId: true,
       },
     });
     const eventsArr = events.map((event) => {
@@ -91,6 +99,11 @@ export class SearchService {
         id: event.id,
         date: event.startDate,
         location: event.locationName,
+        eventData: {
+          memberLimit: event.memberLimit,
+          memberType: event.memberType,
+          participantsId: event.participantsId,
+        },
       };
     });
     const user = await this.prisma.user.findMany({

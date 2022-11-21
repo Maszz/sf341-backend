@@ -65,6 +65,7 @@ Table Profile {
   gender String
   bio String
   eventCount Int [not null, default: 0]
+  colors profileColor
   isProfilePublic Boolean [not null, default: true]
   user User
   userId String [unique]
